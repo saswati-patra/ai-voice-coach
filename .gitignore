@@ -37,8 +37,9 @@ gcloud/
 tmp/
 docker-data/
 
-# Terraform
+# OpenTofu / Terraform
 **/.terraform/
+**/.terraform.lock.hcl
 *.tfstate
 *.tfstate.*
 *.tfvars

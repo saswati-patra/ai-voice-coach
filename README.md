@@ -7,7 +7,7 @@ Google Cloud-only AI voice study coach learning project.
 ```text
 backend/          FastAPI backend, Python package, tests, Dockerfile
 frontend/static/  Local browser voice harness
-infra/terraform/  Terraform skeleton for future Google Cloud resources
+infra/tofu/       OpenTofu skeleton for future Google Cloud resources
 ```
 
 The app runs locally in stub mode by default. Real Google Cloud calls stay disabled until `GOOGLE_CLOUD_ENABLED=true`.
@@ -79,16 +79,16 @@ cd backend
 uv run uvicorn ai_voice_coach.main:app --reload --app-dir src
 ```
 
-## Terraform
+## OpenTofu
 
-Terraform lives in `infra/terraform`. Track `terraform.tfvars.example`; do not commit real `.tfvars` files or state.
+OpenTofu lives in `infra/tofu`. Track `terraform.tfvars.example`; do not commit real `.tfvars` files or state.
 
 ```bash
-terraform -chdir=infra/terraform fmt
-terraform -chdir=infra/terraform validate
+tofu -chdir=infra/tofu fmt
+tofu -chdir=infra/tofu validate
 ```
 
-Terraform is currently a skeleton only; no Google Cloud resources are provisioned yet.
+OpenTofu is currently a skeleton only; no Google Cloud resources are provisioned yet.
 
 ## API
 

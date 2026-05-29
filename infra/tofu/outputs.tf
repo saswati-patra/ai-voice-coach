@@ -1,5 +1,5 @@
 output "project_id" {
-  description = "Google Cloud project ID targeted by this Terraform configuration."
+  description = "Google Cloud project ID targeted by this OpenTofu configuration."
   value       = var.project_id
 }
 
