@@ -13,6 +13,16 @@ def test_health_uses_stub_mode() -> None:
     assert response.json()["adapter_mode"] == "stub"
 
 
+def test_index_serves_voice_harness() -> None:
+    client = TestClient(create_app())
+
+    response = client.get("/")
+
+    assert response.status_code == 200
+    assert "AI Voice Coach" in response.text
+    assert "/api/v1/ws/voice-session" in response.text
+
+
 def test_me_returns_local_dev_user() -> None:
     client = TestClient(create_app())
 

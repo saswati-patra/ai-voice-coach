@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
@@ -14,6 +16,11 @@ class HealthResponse(BaseModel):
     adapter_mode: str
 
 
+def frontend_index_path() -> Path:
+    backend_dir = Path(__file__).resolve().parents[2]
+    return backend_dir.parent / "frontend" / "static" / "index.html"
+
+
 def create_app() -> FastAPI:
     app = FastAPI(title="AI Voice Coach", version="0.1.0")
 
@@ -27,7 +34,7 @@ def create_app() -> FastAPI:
 
     @app.get("/", include_in_schema=False)
     async def index() -> FileResponse:
-        return FileResponse("static/index.html")
+        return FileResponse(frontend_index_path())
 
     @app.get("/health", response_model=HealthResponse)
     async def health(settings: Settings = Depends(get_settings)) -> HealthResponse:
