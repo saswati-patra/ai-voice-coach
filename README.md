@@ -23,6 +23,20 @@ docker compose up
 
 Then check <http://localhost:8000/health>.
 
+## Browser Voice Harness
+
+The local page at <http://localhost:8000> can connect to `/api/v1/ws/voice-session`, capture microphone audio, and stream `audio.chunk` events.
+
+In default stub mode:
+
+```bash
+uv run uvicorn ai_voice_coach.main:app --reload --app-dir src
+```
+
+Then open <http://localhost:8000>, click **Connect**, then **Start Mic**. Stub mode logs received audio chunks but does not return playable audio.
+
+For Gemini mode, complete the ADC setup below, set `GOOGLE_CLOUD_ENABLED=true`, then use the same page. The browser sends 16 kHz mono PCM16 chunks as base64 JSON and plays returned 24 kHz PCM16 audio chunks.
+
 ## Configuration
 
 Copy `.env.example` to `.env` for local overrides. `.env` is ignored by git; only `.env.example` should be tracked. Do not commit Google Cloud credential files.
