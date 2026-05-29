@@ -51,7 +51,7 @@ def get_learning_memory_store() -> LearningMemoryStore:
 def get_voice_session_gateway() -> VoiceSessionGateway:
     settings = get_settings()
     if settings.google_cloud_enabled:
-        return GeminiLiveVoiceSessionGateway(get_google_cloud_clients())
+        return GeminiLiveVoiceSessionGateway(get_google_cloud_clients(), settings)
     return StubVoiceSessionGateway()
 
 
