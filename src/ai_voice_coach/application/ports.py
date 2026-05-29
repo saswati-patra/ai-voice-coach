@@ -1,12 +1,14 @@
 from abc import ABC, abstractmethod
 from collections.abc import AsyncIterator
 
-from ai_voice_coach.models import ReviewItem, StudyMaterial, StudyMaterialCreate, VoiceEvent
+from ai_voice_coach.domain.review_items import ReviewItem
+from ai_voice_coach.domain.study_materials import StudyMaterial, StudyMaterialDraft
+from ai_voice_coach.domain.voice_sessions import VoiceEvent
 
 
 class StudyMaterialStore(ABC):
     @abstractmethod
-    async def create(self, user_id: str, material: StudyMaterialCreate) -> StudyMaterial:
+    async def create(self, user_id: str, material: StudyMaterialDraft) -> StudyMaterial:
         raise NotImplementedError
 
     @abstractmethod
@@ -20,7 +22,7 @@ class LearningMemoryStore(ABC):
         raise NotImplementedError
 
 
-class VoiceSessionService(ABC):
+class VoiceSessionGateway(ABC):
     @abstractmethod
     async def handle_events(self, events: AsyncIterator[VoiceEvent]) -> AsyncIterator[VoiceEvent]:
         raise NotImplementedError

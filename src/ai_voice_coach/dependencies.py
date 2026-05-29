@@ -1,21 +1,28 @@
 from functools import lru_cache
 
-from ai_voice_coach.adapters.google_cloud import (
-    GeminiLiveVoiceSessionService,
-    GoogleCloudClients,
+from ai_voice_coach.application.ports import (
+    LearningMemoryStore,
+    StudyMaterialStore,
+    VoiceSessionGateway,
+)
+from ai_voice_coach.application.use_cases import (
+    CreateStudyMaterial,
+    GetCurrentUser,
+    ListReviewItems,
+    ListStudyMaterials,
+    RunVoiceSession,
+)
+from ai_voice_coach.config import get_settings
+from ai_voice_coach.infrastructure.google_cloud.adapters import (
+    GeminiLiveVoiceSessionGateway,
     GoogleCloudLearningMemoryStore,
     GoogleCloudStudyMaterialStore,
 )
-from ai_voice_coach.adapters.stub import (
+from ai_voice_coach.infrastructure.google_cloud.clients import GoogleCloudClients
+from ai_voice_coach.infrastructure.memory.adapters import (
     InMemoryLearningMemoryStore,
     InMemoryStudyMaterialStore,
-    StubVoiceSessionService,
-)
-from ai_voice_coach.config import Settings, get_settings
-from ai_voice_coach.services.interfaces import (
-    LearningMemoryStore,
-    StudyMaterialStore,
-    VoiceSessionService,
+    StubVoiceSessionGateway,
 )
 
 
@@ -41,13 +48,32 @@ def get_learning_memory_store() -> LearningMemoryStore:
 
 
 @lru_cache
-def get_voice_session_service() -> VoiceSessionService:
+def get_voice_session_gateway() -> VoiceSessionGateway:
     settings = get_settings()
     if settings.google_cloud_enabled:
-        return GeminiLiveVoiceSessionService(get_google_cloud_clients())
-    return StubVoiceSessionService()
+        return GeminiLiveVoiceSessionGateway(get_google_cloud_clients())
+    return StubVoiceSessionGateway()
 
 
-def get_current_user_id(settings: Settings | None = None) -> str:
-    active_settings = settings or get_settings()
-    return active_settings.dev_user_id
+def get_current_user_id() -> str:
+    return get_settings().dev_user_id
+
+
+def get_get_current_user() -> GetCurrentUser:
+    return GetCurrentUser(get_current_user_id())
+
+
+def get_create_study_material() -> CreateStudyMaterial:
+    return CreateStudyMaterial(get_study_material_store())
+
+
+def get_list_study_materials() -> ListStudyMaterials:
+    return ListStudyMaterials(get_study_material_store())
+
+
+def get_list_review_items() -> ListReviewItems:
+    return ListReviewItems(get_learning_memory_store())
+
+
+def get_run_voice_session() -> RunVoiceSession:
+    return RunVoiceSession(get_voice_session_gateway())

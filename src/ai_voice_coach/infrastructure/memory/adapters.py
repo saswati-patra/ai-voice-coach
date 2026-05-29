@@ -1,18 +1,20 @@
 from collections.abc import AsyncIterator
 
-from ai_voice_coach.models import ReviewItem, StudyMaterial, StudyMaterialCreate, VoiceEvent
-from ai_voice_coach.services.interfaces import (
+from ai_voice_coach.application.ports import (
     LearningMemoryStore,
     StudyMaterialStore,
-    VoiceSessionService,
+    VoiceSessionGateway,
 )
+from ai_voice_coach.domain.review_items import ReviewItem
+from ai_voice_coach.domain.study_materials import StudyMaterial, StudyMaterialDraft
+from ai_voice_coach.domain.voice_sessions import VoiceEvent
 
 
 class InMemoryStudyMaterialStore(StudyMaterialStore):
     def __init__(self) -> None:
         self._materials: list[StudyMaterial] = []
 
-    async def create(self, user_id: str, material: StudyMaterialCreate) -> StudyMaterial:
+    async def create(self, user_id: str, material: StudyMaterialDraft) -> StudyMaterial:
         saved = StudyMaterial(user_id=user_id, **material.model_dump())
         self._materials.append(saved)
         return saved
@@ -31,7 +33,7 @@ class InMemoryLearningMemoryStore(LearningMemoryStore):
         return [item for item in self._review_items if item.user_id == user_id]
 
 
-class StubVoiceSessionService(VoiceSessionService):
+class StubVoiceSessionGateway(VoiceSessionGateway):
     async def handle_events(self, events: AsyncIterator[VoiceEvent]) -> AsyncIterator[VoiceEvent]:
         yield VoiceEvent(type="session.started", payload={"mode": "stub"})
 
