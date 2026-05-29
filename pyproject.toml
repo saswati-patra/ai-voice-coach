@@ -1,0 +1,37 @@
+[project]
+name = "ai-voice-coach"
+version = "0.1.0"
+description = "FastAPI backend for a Google Cloud-only AI voice study coach learning project."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi[standard]>=0.115.0",
+    "google-cloud-firestore>=2.19.0",
+    "google-cloud-logging>=3.11.0",
+    "google-cloud-storage>=2.18.0",
+    "google-genai>=1.0.0",
+    "pydantic-settings>=2.6.0",
+]
+
+[dependency-groups]
+dev = [
+    "httpx>=0.28.0",
+    "pytest>=8.3.0",
+    "pytest-asyncio>=0.24.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/ai_voice_coach"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"

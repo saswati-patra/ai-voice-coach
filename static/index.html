@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AI Voice Coach</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: #f7f7f4;
+        color: #202124;
+      }
+
+      main {
+        max-width: 720px;
+        margin: 48px auto;
+        padding: 0 20px;
+      }
+
+      h1 {
+        font-size: 32px;
+        line-height: 1.1;
+        margin: 0 0 12px;
+      }
+
+      .controls {
+        display: flex;
+        gap: 8px;
+        margin: 24px 0;
+      }
+
+      button {
+        min-height: 40px;
+        border: 1px solid #202124;
+        background: #202124;
+        color: white;
+        padding: 0 14px;
+        border-radius: 6px;
+        cursor: pointer;
+      }
+
+      button.secondary {
+        background: white;
+        color: #202124;
+      }
+
+      pre {
+        min-height: 240px;
+        overflow: auto;
+        background: #111;
+        color: #f6f6f6;
+        padding: 16px;
+        border-radius: 6px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>AI Voice Coach</h1>
+      <p>Local stub harness for the future Gemini Live voice session.</p>
+      <div class="controls">
+        <button id="connect">Connect</button>
+        <button class="secondary" id="send">Send Mock Audio</button>
+        <button class="secondary" id="stop">Stop</button>
+      </div>
+      <pre id="log"></pre>
+    </main>
+
+    <script>
+      const log = document.querySelector("#log");
+      let socket;
+
+      function write(message) {
+        log.textContent += `${message}\n`;
+      }
+
+      document.querySelector("#connect").addEventListener("click", () => {
+        socket = new WebSocket(`ws://${window.location.host}/api/v1/ws/voice-session`);
+        socket.addEventListener("open", () => write("connected"));
+        socket.addEventListener("message", (event) => write(event.data));
+        socket.addEventListener("close", () => write("closed"));
+      });
+
+      document.querySelector("#send").addEventListener("click", () => {
+        socket?.send(JSON.stringify({ type: "audio.chunk", payload: { data: "stub" } }));
+      });
+
+      document.querySelector("#stop").addEventListener("click", () => {
+        socket?.send(JSON.stringify({ type: "session.stop", payload: {} }));
+      });
+    </script>
+  </body>
+</html>
