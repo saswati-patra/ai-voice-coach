@@ -26,10 +26,33 @@ class GoogleCloudStudyMaterialStore(StudyMaterialStore):
         self._clients = clients
 
     async def create(self, user_id: str, material: StudyMaterialDraft) -> StudyMaterial:
-        raise NotImplementedError("Cloud Storage metadata persistence is planned for a later phase.")
+        saved = StudyMaterial(user_id=user_id, **material.model_dump())
+        await self._study_materials_collection(user_id).document(saved.id).set(
+            saved.model_dump(mode="python")
+        )
+        return saved
 
     async def list_for_user(self, user_id: str) -> list[StudyMaterial]:
-        raise NotImplementedError("Cloud Storage metadata listing is planned for a later phase.")
+        query = self._study_materials_collection(user_id).order_by("created_at")
+        materials: list[StudyMaterial] = []
+
+        async for snapshot in query.stream():
+            data = snapshot.to_dict()
+            if data is None:
+                continue
+
+            data.setdefault("id", snapshot.id)
+            data.setdefault("user_id", user_id)
+            materials.append(StudyMaterial.model_validate(data))
+
+        return materials
+
+    def _study_materials_collection(self, user_id: str):
+        return (
+            self._clients.firestore.collection("users")
+            .document(user_id)
+            .collection("study_materials")
+        )
 
 
 class GoogleCloudLearningMemoryStore(LearningMemoryStore):

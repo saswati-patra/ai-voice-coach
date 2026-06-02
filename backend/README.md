@@ -49,3 +49,7 @@ GOOGLE_CLOUD_LOCATION=us-central1
 - `POST /api/v1/study-materials`
 - `GET /api/v1/review-items`
 - `WebSocket /api/v1/ws/voice-session`
+
+In stub mode, study materials are stored in memory for the life of the process. In Google
+Cloud mode, study material metadata is persisted in Firestore under
+`users/{user_id}/study_materials/{material_id}`.
