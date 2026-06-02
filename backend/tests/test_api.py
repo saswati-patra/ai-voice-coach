@@ -21,6 +21,16 @@ def test_index_serves_voice_harness() -> None:
     assert response.status_code == 200
     assert "AI Voice Coach" in response.text
     assert "/api/v1/ws/voice-session" in response.text
+    assert "/static/styles.css" in response.text
+
+
+def test_static_stylesheet_is_served() -> None:
+    client = TestClient(create_app())
+
+    response = client.get("/static/styles.css")
+
+    assert response.status_code == 200
+    assert "button:disabled" in response.text
 
 
 def test_me_returns_local_dev_user() -> None:

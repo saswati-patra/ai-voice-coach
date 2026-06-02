@@ -3,6 +3,7 @@ from pathlib import Path
 from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
 from ai_voice_coach.api.v1.router import router as api_v1_router
 from ai_voice_coach.config import Settings, get_settings
@@ -17,8 +18,12 @@ class HealthResponse(BaseModel):
 
 
 def frontend_index_path() -> Path:
+    return frontend_static_dir() / "index.html"
+
+
+def frontend_static_dir() -> Path:
     backend_dir = Path(__file__).resolve().parents[2]
-    return backend_dir.parent / "frontend" / "static" / "index.html"
+    return backend_dir.parent / "frontend" / "static"
 
 
 def create_app() -> FastAPI:
@@ -31,6 +36,7 @@ def create_app() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+    app.mount("/static", StaticFiles(directory=frontend_static_dir()), name="static")
 
     @app.get("/", include_in_schema=False)
     async def index() -> FileResponse:
