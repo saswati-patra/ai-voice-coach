@@ -12,7 +12,7 @@ tofu/
   terraform.tfvars.example
 ```
 
-The current OpenTofu configuration is a skeleton. It validates, but it does not provision Google Cloud resources yet.
+The current OpenTofu configuration provisions the dev cloud foundation: required APIs, Firestore, Cloud Storage, Artifact Registry, a backend service account, and baseline IAM.
 
 ## Prerequisites
 
@@ -28,22 +28,48 @@ Confirm installation:
 tofu version
 ```
 
+## Bootstrap
+
+OpenTofu can manage the cloud resources, but it needs authentication and the Service Usage API before the first apply:
+
+```bash
+export PROJECT_ID="your-google-cloud-project-id"
+gcloud auth login
+gcloud auth application-default login
+gcloud config set project "$PROJECT_ID"
+gcloud auth application-default set-quota-project "$PROJECT_ID"
+gcloud services enable serviceusage.googleapis.com --project "$PROJECT_ID"
+```
+
+If the project is new, create it and link billing before this step.
+
 ## Local Commands
 
 From the repo root:
 
 ```bash
-tofu -chdir=infra/tofu fmt
-tofu -chdir=infra/tofu validate
+cp infra/tofu/terraform.tfvars.example infra/tofu/terraform.tfvars
 ```
 
-When resources are added later:
+Edit `infra/tofu/terraform.tfvars`, then run:
 
 ```bash
-cp infra/tofu/terraform.tfvars.example infra/tofu/terraform.tfvars
 tofu -chdir=infra/tofu init
+tofu -chdir=infra/tofu fmt
+tofu -chdir=infra/tofu validate
 tofu -chdir=infra/tofu plan
+tofu -chdir=infra/tofu apply
 ```
+
+Useful outputs after apply:
+
+```bash
+tofu -chdir=infra/tofu output
+tofu -chdir=infra/tofu output -raw study_materials_bucket_name
+tofu -chdir=infra/tofu output -raw backend_service_account_email
+```
+
+Use `study_materials_bucket_name` in `backend/.env` as `GOOGLE_CLOUD_STORAGE_BUCKET`.
 
 ## State And Secrets
 
@@ -59,12 +85,7 @@ Track only example files such as `terraform.tfvars.example`.
 
 ## Planned Google Cloud Resources
 
-- Required project APIs
-- Service accounts and IAM
-- Artifact Registry
-- Cloud Run
-- Firestore
-- Cloud Storage
+- Cloud Run deployment
 - Firebase Authentication setup where practical
-- Secret Manager
-- Vertex AI enablement
+- Secret Manager secrets and secret versions
+- Remote state storage

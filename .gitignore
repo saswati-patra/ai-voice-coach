@@ -39,7 +39,6 @@ docker-data/
 
 # OpenTofu / Terraform
 **/.terraform/
-**/.terraform.lock.hcl
 *.tfstate
 *.tfstate.*
 *.tfvars

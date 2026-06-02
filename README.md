@@ -7,7 +7,7 @@ Google Cloud-only AI voice study coach learning project.
 ```text
 backend/          FastAPI backend, Python package, tests, Dockerfile
 frontend/static/  Local browser voice harness
-infra/tofu/       OpenTofu skeleton for future Google Cloud resources
+infra/tofu/       OpenTofu for Google Cloud foundation resources
 ```
 
 The app runs locally in stub mode by default. Real Google Cloud calls stay disabled until `GOOGLE_CLOUD_ENABLED=true`.
@@ -83,12 +83,50 @@ uv run uvicorn ai_voice_coach.main:app --reload --app-dir src
 
 OpenTofu lives in `infra/tofu`. Track `terraform.tfvars.example`; do not commit real `.tfvars` files or state.
 
+Manual bootstrap before the first apply:
+
 ```bash
-tofu -chdir=infra/tofu fmt
-tofu -chdir=infra/tofu validate
+export PROJECT_ID="your-google-cloud-project-id"
+gcloud auth login
+gcloud auth application-default login
+gcloud config set project "$PROJECT_ID"
+gcloud auth application-default set-quota-project "$PROJECT_ID"
+gcloud services enable serviceusage.googleapis.com --project "$PROJECT_ID"
 ```
 
-OpenTofu is currently a skeleton only; no Google Cloud resources are provisioned yet.
+Create local variables:
+
+```bash
+cp infra/tofu/terraform.tfvars.example infra/tofu/terraform.tfvars
+```
+
+Set `project_id` in `infra/tofu/terraform.tfvars`, then run:
+
+```bash
+tofu -chdir=infra/tofu init
+tofu -chdir=infra/tofu fmt
+tofu -chdir=infra/tofu validate
+tofu -chdir=infra/tofu plan
+tofu -chdir=infra/tofu apply
+```
+
+OpenTofu manages the dev cloud foundation: APIs, Firestore, Cloud Storage, Artifact Registry, a backend service account, and baseline IAM.
+
+After apply, configure the backend with the OpenTofu outputs:
+
+```bash
+cp backend/.env.example backend/.env
+```
+
+Set:
+
+```bash
+GOOGLE_CLOUD_ENABLED=true
+GOOGLE_CLOUD_PROJECT=your-google-cloud-project-id
+GOOGLE_CLOUD_LOCATION=us-central1
+GOOGLE_CLOUD_STORAGE_BUCKET=<value from tofu output study_materials_bucket_name>
+GEMINI_LIVE_MODEL=gemini-live-2.5-flash-native-audio
+```
 
 ## API
 
