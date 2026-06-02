@@ -12,6 +12,8 @@ infra/tofu/       OpenTofu for Google Cloud foundation resources
 
 The app runs locally in stub mode by default. Real Google Cloud calls stay disabled until `GOOGLE_CLOUD_ENABLED=true`.
 
+For the step-by-step cloud setup runbook, see [RUNNING.md](RUNNING.md).
+
 ## Backend
 
 ```bash
