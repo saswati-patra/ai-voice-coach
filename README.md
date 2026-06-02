@@ -55,7 +55,7 @@ Key settings:
 - `GOOGLE_CLOUD_PROJECT`: future Google Cloud project ID
 - `GOOGLE_CLOUD_LOCATION`: future Vertex AI location, default `us-central1`
 - `GEMINI_LIVE_MODEL`: Gemini Live model name used when Google Cloud mode is enabled
-- `GEMINI_RESPONSE_MODALITIES`: comma-separated response modalities, default `audio,text`
+- `GEMINI_RESPONSE_MODALITIES`: response modality for Gemini Live, default `audio`
 
 ## Gemini Live Local Setup
 

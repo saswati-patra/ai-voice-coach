@@ -18,11 +18,11 @@ class Settings(BaseSettings):
     )
     firestore_database: str = Field(default="(default)", validation_alias="FIRESTORE_DATABASE")
     gemini_live_model: str = Field(
-        default="gemini-live-2.5-flash-preview-native-audio-09-2025",
+        default="gemini-live-2.5-flash-native-audio",
         validation_alias="GEMINI_LIVE_MODEL",
     )
     gemini_response_modalities: str = Field(
-        default="audio,text", validation_alias="GEMINI_RESPONSE_MODALITIES"
+        default="audio", validation_alias="GEMINI_RESPONSE_MODALITIES"
     )
     gemini_system_instruction: str = Field(
         default=(
@@ -45,6 +45,15 @@ class Settings(BaseSettings):
             for modality in self.gemini_response_modalities.split(",")
             if modality.strip()
         ]
+
+    @property
+    def gemini_live_response_modalities(self) -> list[str]:
+        requested_modalities = [modality.lower() for modality in self.gemini_response_modality_list]
+        if "audio" in requested_modalities:
+            return ["audio"]
+        if requested_modalities:
+            return [requested_modalities[0]]
+        return ["audio"]
 
 
 @lru_cache

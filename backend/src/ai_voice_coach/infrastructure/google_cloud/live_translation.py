@@ -33,7 +33,7 @@ GeminiClientSend = GeminiRealtimeAudio | GeminiClientContent | GeminiAudioStream
 
 def build_live_connect_config(settings: Settings) -> types.LiveConnectConfig:
     return types.LiveConnectConfig(
-        response_modalities=settings.gemini_response_modality_list,
+        response_modalities=settings.gemini_live_response_modalities,
         system_instruction=settings.gemini_system_instruction,
         input_audio_transcription=types.AudioTranscriptionConfig(),
         output_audio_transcription=types.AudioTranscriptionConfig(),

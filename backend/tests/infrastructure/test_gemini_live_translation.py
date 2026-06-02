@@ -18,7 +18,7 @@ from ai_voice_coach.infrastructure.google_cloud.live_translation import (
 def test_build_live_connect_config_includes_modalities_and_transcription() -> None:
     config = build_live_connect_config(Settings())
 
-    assert [modality.value for modality in config.response_modalities] == ["AUDIO", "TEXT"]
+    assert [modality.value for modality in config.response_modalities] == ["AUDIO"]
     assert config.input_audio_transcription is not None
     assert config.output_audio_transcription is not None
     assert "study coach" in config.system_instruction

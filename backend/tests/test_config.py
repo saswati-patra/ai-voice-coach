@@ -37,3 +37,15 @@ def test_gemini_response_modalities_are_parsed_from_env_string() -> None:
     settings = Settings(GEMINI_RESPONSE_MODALITIES="audio,text")
 
     assert settings.gemini_response_modality_list == ["audio", "text"]
+
+
+def test_gemini_live_response_modalities_prefers_one_audio_modality() -> None:
+    settings = Settings(GEMINI_RESPONSE_MODALITIES="audio,text")
+
+    assert settings.gemini_live_response_modalities == ["audio"]
+
+
+def test_gemini_live_response_modalities_uses_first_non_audio_modality() -> None:
+    settings = Settings(GEMINI_RESPONSE_MODALITIES="text")
+
+    assert settings.gemini_live_response_modalities == ["text"]
