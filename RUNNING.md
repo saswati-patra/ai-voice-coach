@@ -31,10 +31,10 @@ export REGION="us-central1"
 For a new Google Cloud project:
 
 ```bash
-export PROJECT_ID="ai-voice-coach-dev-yourname"
+export PROJECT_ID="ai-voice-coach-dev-saswati"
 export REGION="us-central1"
 
-gcloud projects create "$PROJECT_ID" --name="AI Voice Coach Dev"
+gcloud projects create "$PROJECT_ID" --name="AI Voice Coach Dev Saswati"
 ```
 
 If the project is new, link billing:
@@ -131,7 +131,7 @@ GOOGLE_CLOUD_LOCATION=us-central1
 GOOGLE_CLOUD_STORAGE_BUCKET=<value from tofu output study_materials_bucket_name>
 FIRESTORE_DATABASE=(default)
 GEMINI_LIVE_MODEL=gemini-live-2.5-flash-native-audio
-GEMINI_RESPONSE_MODALITIES=audio,text
+GEMINI_RESPONSE_MODALITIES=audio
 GEMINI_SYSTEM_INSTRUCTION=You are an AI voice study coach. Ask concise questions, give gentle corrections, and revisit weak concepts.
 ```
 
@@ -250,4 +250,3 @@ docker compose up -d
 curl http://localhost:8000/health
 docker compose down
 ```
-
