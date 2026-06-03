@@ -128,6 +128,7 @@ GOOGLE_CLOUD_PROJECT=your-google-cloud-project-id
 GOOGLE_CLOUD_LOCATION=us-central1
 GOOGLE_CLOUD_STORAGE_BUCKET=<value from tofu output study_materials_bucket_name>
 GEMINI_LIVE_MODEL=gemini-live-2.5-flash-native-audio
+GEMINI_DOCUMENT_MODEL=gemini-2.5-flash
 ```
 
 ## API
@@ -137,5 +138,6 @@ GEMINI_LIVE_MODEL=gemini-live-2.5-flash-native-audio
 - `GET /api/v1/study-materials`
 - `POST /api/v1/study-materials`
 - `POST /api/v1/study-materials/upload`
+- `POST /api/v1/study-materials/{material_id}/ingest`
 - `GET /api/v1/review-items`
 - `WebSocket /api/v1/ws/voice-session`

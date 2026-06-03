@@ -1,11 +1,15 @@
 from ai_voice_coach.config import Settings
 from ai_voice_coach.dependencies import get_voice_session_gateway
 from ai_voice_coach.infrastructure.google_cloud.adapters import (
+    GeminiDocumentIngestionGateway,
     GeminiLiveVoiceSessionGateway,
     GoogleCloudStudyMaterialDocumentStore,
     GoogleCloudStudyMaterialStore,
 )
-from ai_voice_coach.infrastructure.memory.adapters import StubVoiceSessionGateway
+from ai_voice_coach.infrastructure.memory.adapters import (
+    StubDocumentIngestionGateway,
+    StubVoiceSessionGateway,
+)
 
 
 class FakeClients:
@@ -72,6 +76,41 @@ def test_cloud_mode_selects_cloud_storage_document_store(monkeypatch) -> None:
 
     config.get_settings.cache_clear()
     dependencies.get_study_material_document_store.cache_clear()
+
+
+def test_stub_mode_selects_stub_document_ingestion_gateway() -> None:
+    from ai_voice_coach import dependencies
+
+    dependencies.get_document_ingestion_gateway.cache_clear()
+
+    gateway = dependencies.get_document_ingestion_gateway()
+
+    assert isinstance(gateway, StubDocumentIngestionGateway)
+
+    dependencies.get_document_ingestion_gateway.cache_clear()
+
+
+def test_cloud_mode_selects_gemini_document_ingestion_gateway(monkeypatch) -> None:
+    from ai_voice_coach import config, dependencies
+
+    monkeypatch.setenv("GOOGLE_CLOUD_ENABLED", "true")
+    monkeypatch.setenv("GOOGLE_CLOUD_PROJECT", "test-project")
+    config.get_settings.cache_clear()
+    dependencies.get_document_ingestion_gateway.cache_clear()
+    monkeypatch.setattr(dependencies, "get_google_cloud_clients", lambda: FakeClients())
+
+    gateway = dependencies.get_document_ingestion_gateway()
+
+    assert isinstance(gateway, GeminiDocumentIngestionGateway)
+
+    config.get_settings.cache_clear()
+    dependencies.get_document_ingestion_gateway.cache_clear()
+
+
+def test_gemini_document_model_defaults_to_flash() -> None:
+    settings = Settings()
+
+    assert settings.gemini_document_model == "gemini-2.5-flash"
 
 
 def test_gemini_response_modalities_are_parsed_from_env_string() -> None:

@@ -4,6 +4,7 @@ from pathlib import PurePath
 from uuid import uuid4
 
 from ai_voice_coach.application.ports import (
+    DocumentIngestionGateway,
     LearningMemoryStore,
     StudyMaterialDocumentStore,
     StudyMaterialStore,
@@ -11,13 +12,20 @@ from ai_voice_coach.application.ports import (
 )
 from ai_voice_coach.domain.review_items import ReviewItem
 from ai_voice_coach.domain.study_materials import (
+    DocumentIngestionResult,
     StoredStudyDocument,
     StudyMaterial,
     StudyMaterialDraft,
+    StudyMaterialIngestionUpdate,
 )
 from ai_voice_coach.domain.voice_sessions import VoiceEvent
 from ai_voice_coach.config import Settings
 from ai_voice_coach.infrastructure.google_cloud.clients import GoogleCloudClients
+from ai_voice_coach.infrastructure.google_cloud.document_ingestion import (
+    build_document_ingestion_config,
+    build_document_ingestion_contents,
+    parse_document_ingestion_response,
+)
 from ai_voice_coach.infrastructure.google_cloud.live_translation import (
     GeminiAudioStreamEnd,
     GeminiClientContent,
@@ -53,6 +61,33 @@ class GoogleCloudStudyMaterialStore(StudyMaterialStore):
             materials.append(StudyMaterial.model_validate(data))
 
         return materials
+
+    async def get(self, user_id: str, material_id: str) -> StudyMaterial | None:
+        snapshot = await self._study_materials_collection(user_id).document(material_id).get()
+        if not snapshot.exists:
+            return None
+
+        data = snapshot.to_dict()
+        if data is None:
+            return None
+
+        data.setdefault("id", snapshot.id)
+        data.setdefault("user_id", user_id)
+        return StudyMaterial.model_validate(data)
+
+    async def update_ingestion(
+        self,
+        user_id: str,
+        material_id: str,
+        update: StudyMaterialIngestionUpdate,
+    ) -> StudyMaterial:
+        document = self._study_materials_collection(user_id).document(material_id)
+        await document.update(update.model_dump(mode="python"))
+        updated = await self.get(user_id, material_id)
+        if updated is None:
+            raise KeyError(f"Study material {material_id} was not found.")
+
+        return updated
 
     def _study_materials_collection(self, user_id: str):
         return (
@@ -95,13 +130,67 @@ class GoogleCloudStudyMaterialDocumentStore(StudyMaterialDocumentStore):
             size_bytes=len(content),
         )
 
+    async def read_text(self, material: StudyMaterial) -> str:
+        bucket_name = material.storage_bucket or self._settings.google_cloud_storage_bucket
+        if bucket_name is None or material.storage_path is None:
+            raise RuntimeError("Cloud Storage bucket and object path are required.")
+
+        blob = self._clients.storage.bucket(bucket_name).blob(material.storage_path)
+        content = await asyncio.to_thread(blob.download_as_bytes)
+        return content.decode("utf-8")
+
 
 class GoogleCloudLearningMemoryStore(LearningMemoryStore):
     def __init__(self, clients: GoogleCloudClients) -> None:
         self._clients = clients
 
     async def list_review_items(self, user_id: str) -> list[ReviewItem]:
-        raise NotImplementedError("Firestore learning memory is planned for a later phase.")
+        query = self._review_items_collection(user_id).order_by("created_at")
+        items: list[ReviewItem] = []
+
+        async for snapshot in query.stream():
+            data = snapshot.to_dict()
+            if data is None:
+                continue
+
+            data.setdefault("id", snapshot.id)
+            data.setdefault("user_id", user_id)
+            items.append(ReviewItem.model_validate(data))
+
+        return items
+
+    async def create_review_items(self, user_id: str, concepts: list[str]) -> list[ReviewItem]:
+        items = [ReviewItem(user_id=user_id, concept=concept) for concept in concepts]
+        for item in items:
+            await self._review_items_collection(user_id).document(item.id).set(
+                item.model_dump(mode="python")
+            )
+
+        return items
+
+    def _review_items_collection(self, user_id: str):
+        return self._clients.firestore.collection("users").document(user_id).collection(
+            "review_items"
+        )
+
+
+class GeminiDocumentIngestionGateway(DocumentIngestionGateway):
+    def __init__(self, clients: GoogleCloudClients, settings: Settings) -> None:
+        self._clients = clients
+        self._settings = settings
+
+    async def ingest(
+        self,
+        material: StudyMaterial,
+        text_content: str | None = None,
+    ) -> DocumentIngestionResult:
+        response = await asyncio.to_thread(
+            self._clients.genai.models.generate_content,
+            model=self._settings.gemini_document_model,
+            contents=build_document_ingestion_contents(material, text_content),
+            config=build_document_ingestion_config(),
+        )
+        return parse_document_ingestion_response(response)
 
 
 class GeminiLiveVoiceSessionGateway(VoiceSessionGateway):

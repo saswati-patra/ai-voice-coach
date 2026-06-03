@@ -40,6 +40,7 @@ GOOGLE_CLOUD_ENABLED=true
 GOOGLE_CLOUD_PROJECT=your-google-cloud-project-id
 GOOGLE_CLOUD_LOCATION=us-central1
 GOOGLE_CLOUD_STORAGE_BUCKET=your-study-materials-bucket
+GEMINI_DOCUMENT_MODEL=gemini-2.5-flash
 ```
 
 ## API
@@ -49,17 +50,26 @@ GOOGLE_CLOUD_STORAGE_BUCKET=your-study-materials-bucket
 - `GET /api/v1/study-materials`
 - `POST /api/v1/study-materials`
 - `POST /api/v1/study-materials/upload`
+- `POST /api/v1/study-materials/{material_id}/ingest`
 - `GET /api/v1/review-items`
 - `WebSocket /api/v1/ws/voice-session`
 
 In stub mode, study materials are stored in memory for the life of the process. In Google
 Cloud mode, study material metadata is persisted in Firestore under
 `users/{user_id}/study_materials/{material_id}`. Uploaded study documents are stored in
-Cloud Storage and referenced from the Firestore metadata.
+Cloud Storage and referenced from the Firestore metadata. Manual ingestion sends uploaded
+PDF or UTF-8 text materials to Vertex Gemini, stores the summary/concepts on the material,
+and creates review items.
 
 Upload a document with:
 
 ```bash
 curl -F "title=Chapter 1" -F "file=@/path/to/chapter-1.pdf;type=application/pdf" \
   http://localhost:8000/api/v1/study-materials/upload
+```
+
+Then ingest the uploaded material:
+
+```bash
+curl -X POST http://localhost:8000/api/v1/study-materials/{material_id}/ingest
 ```

@@ -2,16 +2,22 @@ from collections.abc import AsyncIterator
 
 import pytest
 
-from ai_voice_coach.domain.study_materials import StudyMaterialDraft
-from ai_voice_coach.infrastructure.google_cloud.adapters import GoogleCloudStudyMaterialStore
+from ai_voice_coach.domain.study_materials import StudyMaterialDraft, StudyMaterialIngestionUpdate
+from ai_voice_coach.infrastructure.google_cloud.adapters import (
+    GoogleCloudLearningMemoryStore,
+    GoogleCloudStudyMaterialStore,
+)
 
 
 class FakeDocumentSnapshot:
-    def __init__(self, document_id: str, data: dict) -> None:
+    def __init__(self, document_id: str, data: dict | None) -> None:
         self.id = document_id
         self._data = data
+        self.exists = data is not None
 
-    def to_dict(self) -> dict:
+    def to_dict(self) -> dict | None:
+        if self._data is None:
+            return None
         return dict(self._data)
 
 
@@ -25,6 +31,12 @@ class FakeDocumentReference:
 
     async def set(self, data: dict) -> None:
         self._firestore.documents[self._path] = dict(data)
+
+    async def get(self) -> FakeDocumentSnapshot:
+        return FakeDocumentSnapshot(self._path[-1], self._firestore.documents.get(self._path))
+
+    async def update(self, data: dict) -> None:
+        self._firestore.documents[self._path].update(data)
 
 
 class FakeCollectionReference:
@@ -97,3 +109,37 @@ async def test_google_cloud_study_material_store_lists_user_materials() -> None:
     materials = await store.list_for_user("dev-user")
 
     assert materials == [first, second]
+
+
+@pytest.mark.asyncio
+async def test_google_cloud_study_material_store_gets_and_updates_ingestion_fields() -> None:
+    clients = FakeClients()
+    store = GoogleCloudStudyMaterialStore(clients)
+    material = await store.create("dev-user", StudyMaterialDraft(title="Chapter 1 Notes"))
+
+    loaded = await store.get("dev-user", material.id)
+    updated = await store.update_ingestion(
+        "dev-user",
+        material.id,
+        StudyMaterialIngestionUpdate(
+            ingestion_status="completed",
+            summary="Chapter summary",
+            key_concepts=["photosynthesis"],
+        ),
+    )
+
+    assert loaded == material
+    assert updated.ingestion_status == "completed"
+    assert updated.summary == "Chapter summary"
+    assert updated.key_concepts == ["photosynthesis"]
+
+
+@pytest.mark.asyncio
+async def test_google_cloud_learning_memory_store_creates_and_lists_review_items() -> None:
+    clients = FakeClients()
+    store = GoogleCloudLearningMemoryStore(clients)
+
+    created = await store.create_review_items("dev-user", ["photosynthesis", "cellular respiration"])
+    listed = await store.list_review_items("dev-user")
+
+    assert listed == created

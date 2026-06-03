@@ -4,9 +4,12 @@ import pytest
 
 from ai_voice_coach.application.use_cases import (
     CreateStudyMaterial,
+    IngestStudyMaterial,
     ListReviewItems,
     ListStudyMaterials,
     RunVoiceSession,
+    StudyMaterialIngestionNotSupportedError,
+    StudyMaterialNotFoundError,
     UploadStudyMaterialDocument,
 )
 from ai_voice_coach.domain.study_materials import StudyMaterialDraft
@@ -15,6 +18,7 @@ from ai_voice_coach.infrastructure.memory.adapters import (
     InMemoryLearningMemoryStore,
     InMemoryStudyMaterialDocumentStore,
     InMemoryStudyMaterialStore,
+    StubDocumentIngestionGateway,
     StubVoiceSessionGateway,
 )
 
@@ -54,6 +58,69 @@ async def test_upload_study_material_document_use_case_creates_material_metadata
     assert uploaded.content_type == "application/pdf"
     assert uploaded.size_bytes == len(b"pdf bytes")
     assert listed == [uploaded]
+
+
+@pytest.mark.asyncio
+async def test_ingest_study_material_use_case_updates_material_and_review_items() -> None:
+    material_store = InMemoryStudyMaterialStore()
+    document_store = InMemoryStudyMaterialDocumentStore()
+    learning_store = InMemoryLearningMemoryStore()
+    upload = UploadStudyMaterialDocument(document_store, material_store)
+    ingest = IngestStudyMaterial(
+        material_store,
+        document_store,
+        learning_store,
+        StubDocumentIngestionGateway(),
+    )
+    uploaded = await upload.execute(
+        user_id="dev-user",
+        filename="chapter-1.txt",
+        content_type="text/plain",
+        content=b"study notes",
+        title="Chapter 1",
+    )
+
+    ingested = await ingest.execute("dev-user", uploaded.id)
+    review_items = await learning_store.list_review_items("dev-user")
+
+    assert ingested.ingestion_status == "completed"
+    assert ingested.summary == "Stub summary for Chapter 1."
+    assert ingested.key_concepts == ["active recall", "spaced repetition", "voice coaching"]
+    assert ingested.ingested_at is not None
+    assert ingested.ingestion_error is None
+    assert {item.concept for item in review_items} >= {
+        "active recall",
+        "spaced repetition",
+        "voice coaching",
+    }
+
+
+@pytest.mark.asyncio
+async def test_ingest_study_material_use_case_raises_for_missing_material() -> None:
+    use_case = IngestStudyMaterial(
+        InMemoryStudyMaterialStore(),
+        InMemoryStudyMaterialDocumentStore(),
+        InMemoryLearningMemoryStore(),
+        StubDocumentIngestionGateway(),
+    )
+
+    with pytest.raises(StudyMaterialNotFoundError):
+        await use_case.execute("dev-user", "missing")
+
+
+@pytest.mark.asyncio
+async def test_ingest_study_material_use_case_rejects_material_without_upload() -> None:
+    material_store = InMemoryStudyMaterialStore()
+    material = await material_store.create("dev-user", StudyMaterialDraft(title="Loose Note"))
+    use_case = IngestStudyMaterial(
+        material_store,
+        InMemoryStudyMaterialDocumentStore(),
+        InMemoryLearningMemoryStore(),
+        StubDocumentIngestionGateway(),
+    )
+
+    with pytest.raises(StudyMaterialIngestionNotSupportedError):
+        await use_case.execute("dev-user", material.id)
 
 
 @pytest.mark.asyncio

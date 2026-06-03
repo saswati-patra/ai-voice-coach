@@ -1,6 +1,7 @@
 import pytest
 
 from ai_voice_coach.config import Settings
+from ai_voice_coach.domain.study_materials import StudyMaterial
 from ai_voice_coach.infrastructure.google_cloud.adapters import GoogleCloudStudyMaterialDocumentStore
 
 
@@ -13,15 +14,18 @@ class FakeBlob:
         self.uploaded_content = content
         self.content_type = content_type
 
+    def download_as_bytes(self) -> bytes:
+        if self.uploaded_content is None:
+            raise FileNotFoundError
+        return self.uploaded_content
+
 
 class FakeBucket:
     def __init__(self) -> None:
         self.blobs: dict[str, FakeBlob] = {}
 
     def blob(self, storage_path: str) -> FakeBlob:
-        blob = FakeBlob()
-        self.blobs[storage_path] = blob
-        return blob
+        return self.blobs.setdefault(storage_path, FakeBlob())
 
 
 class FakeStorage:
@@ -78,3 +82,32 @@ async def test_google_cloud_document_store_requires_bucket_setting() -> None:
             content_type="application/pdf",
             content=b"pdf bytes",
         )
+
+
+@pytest.mark.asyncio
+async def test_google_cloud_document_store_reads_text_from_cloud_storage() -> None:
+    clients = FakeClients()
+    settings = Settings(GOOGLE_CLOUD_STORAGE_BUCKET="study-materials-bucket")
+    store = GoogleCloudStudyMaterialDocumentStore(clients, settings)
+    document = await store.upload(
+        user_id="dev-user",
+        filename="notes.txt",
+        content_type="text/plain",
+        content=b"hello notes",
+    )
+
+    text = await store.read_text(
+        StudyMaterial(
+            id="material-1",
+            user_id="dev-user",
+            title="Notes",
+            source_type="other",
+            storage_path=document.storage_path,
+            storage_bucket=document.storage_bucket,
+            original_filename=document.original_filename,
+            content_type=document.content_type,
+            size_bytes=document.size_bytes,
+        )
+    )
+
+    assert text == "hello notes"

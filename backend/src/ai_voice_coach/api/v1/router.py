@@ -8,15 +8,19 @@ from ai_voice_coach.api.v1.schemas import StudyMaterialCreateRequest, UserProfil
 from ai_voice_coach.application.use_cases import (
     CreateStudyMaterial,
     GetCurrentUser,
+    IngestStudyMaterial,
     ListReviewItems,
     ListStudyMaterials,
     RunVoiceSession,
+    StudyMaterialIngestionNotSupportedError,
+    StudyMaterialNotFoundError,
     UploadStudyMaterialDocument,
 )
 from ai_voice_coach.dependencies import (
     get_create_study_material,
     get_current_user_id,
     get_get_current_user,
+    get_ingest_study_material,
     get_list_review_items,
     get_list_study_materials,
     get_run_voice_session,
@@ -70,6 +74,20 @@ async def upload_study_material_document(
         content=content,
         title=title,
     )
+
+
+@router.post("/study-materials/{material_id}/ingest")
+async def ingest_study_material(
+    material_id: str,
+    use_case: IngestStudyMaterial = Depends(get_ingest_study_material),
+    user_id: str = Depends(get_current_user_id),
+):
+    try:
+        return await use_case.execute(user_id, material_id)
+    except StudyMaterialNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except StudyMaterialIngestionNotSupportedError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 
 @router.get("/review-items")

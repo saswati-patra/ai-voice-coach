@@ -77,6 +77,50 @@ def test_study_material_upload_round_trip() -> None:
     assert listed.json()[0]["id"] == body["id"]
 
 
+def test_study_material_ingest_round_trip() -> None:
+    client = TestClient(create_app())
+
+    uploaded = client.post(
+        "/api/v1/study-materials/upload",
+        data={"title": "Uploaded Chapter"},
+        files={"file": ("chapter.txt", b"study notes", "text/plain")},
+    )
+    material_id = uploaded.json()["id"]
+    ingested = client.post(f"/api/v1/study-materials/{material_id}/ingest")
+    listed = client.get("/api/v1/study-materials")
+    review_items = client.get("/api/v1/review-items")
+
+    assert ingested.status_code == 200
+    assert ingested.json()["ingestion_status"] == "completed"
+    assert ingested.json()["summary"] == "Stub summary for Uploaded Chapter."
+    assert listed.json()[0]["ingestion_status"] == "completed"
+    assert {item["concept"] for item in review_items.json()} >= {
+        "active recall",
+        "spaced repetition",
+        "voice coaching",
+    }
+
+
+def test_study_material_ingest_returns_404_for_missing_material() -> None:
+    client = TestClient(create_app())
+
+    response = client.post("/api/v1/study-materials/missing/ingest")
+
+    assert response.status_code == 404
+
+
+def test_study_material_ingest_rejects_non_uploaded_note() -> None:
+    client = TestClient(create_app())
+
+    created = client.post(
+        "/api/v1/study-materials",
+        json={"title": "Loose Note", "source_type": "note"},
+    )
+    response = client.post(f"/api/v1/study-materials/{created.json()['id']}/ingest")
+
+    assert response.status_code == 400
+
+
 def test_study_material_upload_rejects_empty_file() -> None:
     client = TestClient(create_app())
 

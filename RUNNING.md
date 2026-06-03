@@ -131,6 +131,7 @@ GOOGLE_CLOUD_LOCATION=us-central1
 GOOGLE_CLOUD_STORAGE_BUCKET=<value from tofu output study_materials_bucket_name>
 FIRESTORE_DATABASE=(default)
 GEMINI_LIVE_MODEL=gemini-live-2.5-flash-native-audio
+GEMINI_DOCUMENT_MODEL=gemini-2.5-flash
 GEMINI_RESPONSE_MODALITIES=audio
 GEMINI_SYSTEM_INSTRUCTION=You are an AI voice study coach. Ask concise questions, give gentle corrections, and revisit weak concepts.
 ```
@@ -148,7 +149,7 @@ uv run pytest
 Expected:
 
 ```text
-29 passed
+46 passed
 ```
 
 Verify config:
@@ -162,7 +163,8 @@ print("adapter_mode:", s.adapter_mode)
 print("project:", s.google_cloud_project)
 print("location:", s.google_cloud_location)
 print("bucket:", s.google_cloud_storage_bucket)
-print("model:", s.gemini_live_model)
+print("live model:", s.gemini_live_model)
+print("document model:", s.gemini_document_model)
 PY
 ```
 
@@ -171,7 +173,8 @@ Expected:
 ```text
 adapter_mode: google-cloud
 location: us-central1
-model: gemini-live-2.5-flash-native-audio
+live model: gemini-live-2.5-flash-native-audio
+document model: gemini-2.5-flash
 ```
 
 ## 10. Run Backend
@@ -192,25 +195,34 @@ Expected:
 {"status":"ok","app_name":"AI Voice Coach","app_env":"local","adapter_mode":"google-cloud"}
 ```
 
-## 11. Study Material Upload Smoke Test
+## 11. Study Material Upload And Ingestion Smoke Test
 
 Keep the backend running, then in another terminal:
 
 ```bash
 printf "Photosynthesis notes" >/tmp/ai-voice-coach-notes.txt
 
-curl -s \
+UPLOAD_RESPONSE=$(curl -s \
   -F "title=Photosynthesis Notes" \
   -F "file=@/tmp/ai-voice-coach-notes.txt;type=text/plain" \
-  http://localhost:8000/api/v1/study-materials/upload
+  http://localhost:8000/api/v1/study-materials/upload)
+
+echo "$UPLOAD_RESPONSE"
+
+MATERIAL_ID=$(python -c 'import json,sys; print(json.load(sys.stdin)["id"])' <<<"$UPLOAD_RESPONSE")
+
+curl -s -X POST "http://localhost:8000/api/v1/study-materials/${MATERIAL_ID}/ingest"
 
 curl -s http://localhost:8000/api/v1/study-materials
+curl -s http://localhost:8000/api/v1/review-items
 ```
 
 Expected:
 
 - The upload response includes `storage_path`, `storage_bucket`, `original_filename`, and `size_bytes`.
-- The list response includes the uploaded material.
+- The ingest response has `ingestion_status` set to `completed`, plus `summary` and `key_concepts`.
+- The list response includes the uploaded and ingested material.
+- The review-items response includes concepts generated from the document.
 - The Cloud Storage bucket contains the uploaded object.
 - Firestore has metadata under `users/dev-user/study_materials/{material_id}`.
 

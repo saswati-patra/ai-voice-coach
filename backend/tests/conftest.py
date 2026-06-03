@@ -18,6 +18,7 @@ def isolate_settings(monkeypatch):
     clear_cache(dependencies.get_study_material_document_store)
     clear_cache(dependencies.get_learning_memory_store)
     clear_cache(dependencies.get_voice_session_gateway)
+    clear_cache(dependencies.get_document_ingestion_gateway)
 
     yield
 
@@ -27,3 +28,4 @@ def isolate_settings(monkeypatch):
     clear_cache(dependencies.get_study_material_document_store)
     clear_cache(dependencies.get_learning_memory_store)
     clear_cache(dependencies.get_voice_session_gateway)
+    clear_cache(dependencies.get_document_ingestion_gateway)

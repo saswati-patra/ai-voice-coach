@@ -21,6 +21,10 @@ class Settings(BaseSettings):
         default="gemini-live-2.5-flash-native-audio",
         validation_alias="GEMINI_LIVE_MODEL",
     )
+    gemini_document_model: str = Field(
+        default="gemini-2.5-flash",
+        validation_alias="GEMINI_DOCUMENT_MODEL",
+    )
     gemini_response_modalities: str = Field(
         default="audio", validation_alias="GEMINI_RESPONSE_MODALITIES"
     )
