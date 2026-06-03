@@ -1,13 +1,13 @@
 import asyncio
 from collections.abc import AsyncIterator
 
-from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, WebSocket
+from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, WebSocket, status
 from fastapi import WebSocketDisconnect
 
 from ai_voice_coach.api.v1.schemas import StudyMaterialCreateRequest, UserProfileResponse
+from ai_voice_coach.application.auth import AuthError
 from ai_voice_coach.application.use_cases import (
     CreateStudyMaterial,
-    GetCurrentUser,
     IngestStudyMaterial,
     ListReviewItems,
     ListStudyMaterials,
@@ -18,8 +18,9 @@ from ai_voice_coach.application.use_cases import (
 )
 from ai_voice_coach.dependencies import (
     get_create_study_material,
+    get_current_user,
     get_current_user_id,
-    get_get_current_user,
+    get_current_websocket_user,
     get_ingest_study_material,
     get_list_review_items,
     get_list_study_materials,
@@ -27,14 +28,14 @@ from ai_voice_coach.dependencies import (
     get_upload_study_material_document,
 )
 from ai_voice_coach.domain.study_materials import StudyMaterialDraft
+from ai_voice_coach.domain.users import User
 from ai_voice_coach.domain.voice_sessions import VoiceEvent
 
 router = APIRouter(prefix="/api/v1")
 
 
 @router.get("/me", response_model=UserProfileResponse)
-async def me(use_case: GetCurrentUser = Depends(get_get_current_user)) -> UserProfileResponse:
-    user = await use_case.execute()
+async def me(user: User = Depends(get_current_user)) -> UserProfileResponse:
     return UserProfileResponse(id=user.id, display_name=user.display_name)
 
 
@@ -103,6 +104,12 @@ async def voice_session(
     websocket: WebSocket,
     use_case: RunVoiceSession = Depends(get_run_voice_session),
 ) -> None:
+    try:
+        await get_current_websocket_user(websocket)
+    except AuthError:
+        await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
+        return
+
     await websocket.accept()
     inbound_queue: asyncio.Queue[VoiceEvent | None] = asyncio.Queue()
 

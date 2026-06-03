@@ -1,4 +1,5 @@
 from functools import lru_cache
+from typing import Literal
 
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -7,6 +8,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     app_env: str = Field(default="local", validation_alias="APP_ENV")
     app_name: str = Field(default="AI Voice Coach", validation_alias="APP_NAME")
+    auth_mode: Literal["dev", "firebase"] = Field(default="dev", validation_alias="AUTH_MODE")
     dev_user_id: str = Field(default="dev-user", validation_alias="DEV_USER_ID")
     google_cloud_enabled: bool = Field(default=False, validation_alias="GOOGLE_CLOUD_ENABLED")
     google_cloud_project: str | None = Field(default=None, validation_alias="GOOGLE_CLOUD_PROJECT")
@@ -15,6 +17,11 @@ class Settings(BaseSettings):
     )
     google_cloud_storage_bucket: str | None = Field(
         default=None, validation_alias="GOOGLE_CLOUD_STORAGE_BUCKET"
+    )
+    firebase_project_id: str | None = Field(default=None, validation_alias="FIREBASE_PROJECT_ID")
+    firebase_check_revoked: bool = Field(
+        default=False,
+        validation_alias="FIREBASE_CHECK_REVOKED",
     )
     firestore_database: str = Field(default="(default)", validation_alias="FIRESTORE_DATABASE")
     gemini_live_model: str = Field(
@@ -41,6 +48,10 @@ class Settings(BaseSettings):
     @property
     def adapter_mode(self) -> str:
         return "google-cloud" if self.google_cloud_enabled else "stub"
+
+    @property
+    def resolved_firebase_project_id(self) -> str | None:
+        return self.firebase_project_id or self.google_cloud_project
 
     @property
     def gemini_response_modality_list(self) -> list[str]:

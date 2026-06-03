@@ -1,5 +1,14 @@
 from functools import lru_cache
 
+from fastapi import Depends, HTTPException, WebSocket, status
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+
+from ai_voice_coach.application.auth import (
+    AuthConfigurationError,
+    AuthError,
+    AuthTokenMissingError,
+    AuthVerifier,
+)
 from ai_voice_coach.application.ports import (
     DocumentIngestionGateway,
     LearningMemoryStore,
@@ -17,6 +26,8 @@ from ai_voice_coach.application.use_cases import (
     UploadStudyMaterialDocument,
 )
 from ai_voice_coach.config import get_settings
+from ai_voice_coach.domain.users import User
+from ai_voice_coach.infrastructure.auth import DevAuthVerifier, FirebaseAuthVerifier
 from ai_voice_coach.infrastructure.google_cloud.adapters import (
     GeminiDocumentIngestionGateway,
     GeminiLiveVoiceSessionGateway,
@@ -32,6 +43,8 @@ from ai_voice_coach.infrastructure.memory.adapters import (
     StubDocumentIngestionGateway,
     StubVoiceSessionGateway,
 )
+
+_http_bearer = HTTPBearer(auto_error=False)
 
 
 @lru_cache
@@ -79,12 +92,35 @@ def get_document_ingestion_gateway() -> DocumentIngestionGateway:
     return StubDocumentIngestionGateway()
 
 
-def get_current_user_id() -> str:
-    return get_settings().dev_user_id
+@lru_cache
+def get_auth_verifier() -> AuthVerifier:
+    settings = get_settings()
+    if settings.auth_mode == "firebase":
+        return FirebaseAuthVerifier(settings)
+    return DevAuthVerifier(settings.dev_user_id)
+
+
+async def get_current_user(
+    credentials: HTTPAuthorizationCredentials | None = Depends(_http_bearer),
+) -> User:
+    token = credentials.credentials if credentials is not None else None
+    try:
+        return await get_auth_verifier().verify_id_token(token)
+    except AuthError as exc:
+        raise _auth_http_exception(exc) from exc
+
+
+def get_current_user_id(user: User = Depends(get_current_user)) -> str:
+    return user.id
+
+
+async def get_current_websocket_user(websocket: WebSocket) -> User:
+    token = websocket.query_params.get("id_token")
+    return await get_auth_verifier().verify_id_token(token)
 
 
 def get_get_current_user() -> GetCurrentUser:
-    return GetCurrentUser(get_current_user_id())
+    return GetCurrentUser(get_settings().dev_user_id)
 
 
 def get_create_study_material() -> CreateStudyMaterial:
@@ -117,3 +153,21 @@ def get_list_review_items() -> ListReviewItems:
 
 def get_run_voice_session() -> RunVoiceSession:
     return RunVoiceSession(get_voice_session_gateway())
+
+
+def _auth_http_exception(error: AuthError) -> HTTPException:
+    if isinstance(error, AuthConfigurationError):
+        return HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Authentication is not configured.",
+        )
+
+    detail = "Authentication required."
+    if not isinstance(error, AuthTokenMissingError):
+        detail = "Invalid authentication token."
+
+    return HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail=detail,
+        headers={"WWW-Authenticate": "Bearer"},
+    )

@@ -30,18 +30,25 @@ Copy `.env.example` to `.env` for local overrides. Do not commit `.env` or Googl
 Stub mode is the default:
 
 ```bash
+AUTH_MODE=dev
 GOOGLE_CLOUD_ENABLED=false
 ```
 
 To test Gemini Live locally, authenticate with Google Cloud Application Default Credentials and set:
 
 ```bash
+AUTH_MODE=dev
 GOOGLE_CLOUD_ENABLED=true
 GOOGLE_CLOUD_PROJECT=your-google-cloud-project-id
 GOOGLE_CLOUD_LOCATION=us-central1
 GOOGLE_CLOUD_STORAGE_BUCKET=your-study-materials-bucket
+FIREBASE_PROJECT_ID=your-google-cloud-project-id
 GEMINI_DOCUMENT_MODEL=gemini-2.5-flash
 ```
+
+Set `AUTH_MODE=firebase` to require Firebase ID tokens on user-owned API routes. REST
+clients must send `Authorization: Bearer <Firebase ID token>`. The voice WebSocket uses
+`/api/v1/ws/voice-session?id_token=<Firebase ID token>`.
 
 ## API
 

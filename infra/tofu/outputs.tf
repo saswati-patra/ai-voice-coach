@@ -28,6 +28,11 @@ output "firestore_database_name" {
   value       = google_firestore_database.default.name
 }
 
+output "firebase_project_id" {
+  description = "Firebase project ID used for backend Firebase Auth token verification."
+  value       = google_firebase_project.default.project
+}
+
 output "study_materials_bucket_name" {
   description = "Cloud Storage bucket for uploaded study materials."
   value       = google_storage_bucket.study_materials.name

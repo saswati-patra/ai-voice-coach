@@ -90,6 +90,7 @@ tofu -chdir=infra/tofu apply
 OpenTofu manages:
 
 - Required Google Cloud APIs
+- Firebase Auth foundation
 - Firestore `(default)` database
 - Study materials Cloud Storage bucket
 - Artifact Registry Docker repository
@@ -109,6 +110,7 @@ tofu -chdir=infra/tofu import \
 ```bash
 tofu -chdir=infra/tofu output
 tofu -chdir=infra/tofu output -raw study_materials_bucket_name
+tofu -chdir=infra/tofu output -raw firebase_project_id
 tofu -chdir=infra/tofu output -raw backend_service_account_email
 tofu -chdir=infra/tofu output -raw artifact_registry_repository_id
 ```
@@ -124,11 +126,14 @@ Edit `backend/.env`:
 ```bash
 APP_ENV=local
 APP_NAME=AI Voice Coach
+AUTH_MODE=dev
 DEV_USER_ID=dev-user
 GOOGLE_CLOUD_ENABLED=true
 GOOGLE_CLOUD_PROJECT=your-google-cloud-project-id
 GOOGLE_CLOUD_LOCATION=us-central1
 GOOGLE_CLOUD_STORAGE_BUCKET=<value from tofu output study_materials_bucket_name>
+FIREBASE_PROJECT_ID=<value from tofu output firebase_project_id>
+FIREBASE_CHECK_REVOKED=false
 FIRESTORE_DATABASE=(default)
 GEMINI_LIVE_MODEL=gemini-live-2.5-flash-native-audio
 GEMINI_DOCUMENT_MODEL=gemini-2.5-flash
@@ -149,7 +154,7 @@ uv run pytest
 Expected:
 
 ```text
-46 passed
+60 passed
 ```
 
 Verify config:
@@ -163,6 +168,8 @@ print("adapter_mode:", s.adapter_mode)
 print("project:", s.google_cloud_project)
 print("location:", s.google_cloud_location)
 print("bucket:", s.google_cloud_storage_bucket)
+print("auth mode:", s.auth_mode)
+print("firebase project:", s.resolved_firebase_project_id)
 print("live model:", s.gemini_live_model)
 print("document model:", s.gemini_document_model)
 PY
@@ -173,6 +180,8 @@ Expected:
 ```text
 adapter_mode: google-cloud
 location: us-central1
+auth mode: dev
+firebase project: your-google-cloud-project-id
 live model: gemini-live-2.5-flash-native-audio
 document model: gemini-2.5-flash
 ```
@@ -225,6 +234,10 @@ Expected:
 - The review-items response includes concepts generated from the document.
 - The Cloud Storage bucket contains the uploaded object.
 - Firestore has metadata under `users/dev-user/study_materials/{material_id}`.
+
+To test backend Firebase mode later, set `AUTH_MODE=firebase` and send
+`Authorization: Bearer <Firebase ID token>` on REST requests. The voice WebSocket uses
+`/api/v1/ws/voice-session?id_token=<Firebase ID token>`.
 
 ## 12. Browser Voice Check
 

@@ -12,7 +12,7 @@ tofu/
   terraform.tfvars.example
 ```
 
-The current OpenTofu configuration provisions the dev cloud foundation: required APIs, Firestore, Cloud Storage, Artifact Registry, a backend service account, and baseline IAM.
+The current OpenTofu configuration provisions the dev cloud foundation: required APIs, Firebase Auth foundation, Firestore, Cloud Storage, Artifact Registry, a backend service account, and baseline IAM.
 
 ## Prerequisites
 
@@ -86,6 +86,6 @@ Track only example files such as `terraform.tfvars.example`.
 ## Planned Google Cloud Resources
 
 - Cloud Run deployment
-- Firebase Authentication setup where practical
+- Firebase Web App and sign-in provider setup for the frontend milestone
 - Secret Manager secrets and secret versions
 - Remote state storage

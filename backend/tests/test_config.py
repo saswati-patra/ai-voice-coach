@@ -1,5 +1,6 @@
 from ai_voice_coach.config import Settings
 from ai_voice_coach.dependencies import get_voice_session_gateway
+from ai_voice_coach.infrastructure.auth import DevAuthVerifier, FirebaseAuthVerifier
 from ai_voice_coach.infrastructure.google_cloud.adapters import (
     GeminiDocumentIngestionGateway,
     GeminiLiveVoiceSessionGateway,
@@ -105,6 +106,46 @@ def test_cloud_mode_selects_gemini_document_ingestion_gateway(monkeypatch) -> No
 
     config.get_settings.cache_clear()
     dependencies.get_document_ingestion_gateway.cache_clear()
+
+
+def test_dev_auth_mode_selects_dev_auth_verifier() -> None:
+    from ai_voice_coach import dependencies
+
+    dependencies.get_auth_verifier.cache_clear()
+
+    verifier = dependencies.get_auth_verifier()
+
+    assert isinstance(verifier, DevAuthVerifier)
+
+    dependencies.get_auth_verifier.cache_clear()
+
+
+def test_firebase_auth_mode_selects_firebase_auth_verifier(monkeypatch) -> None:
+    from ai_voice_coach import config, dependencies
+
+    monkeypatch.setenv("AUTH_MODE", "firebase")
+    monkeypatch.setenv("GOOGLE_CLOUD_PROJECT", "test-project")
+    config.get_settings.cache_clear()
+    dependencies.get_auth_verifier.cache_clear()
+
+    verifier = dependencies.get_auth_verifier()
+
+    assert isinstance(verifier, FirebaseAuthVerifier)
+
+    config.get_settings.cache_clear()
+    dependencies.get_auth_verifier.cache_clear()
+
+
+def test_auth_mode_defaults_to_dev() -> None:
+    settings = Settings()
+
+    assert settings.auth_mode == "dev"
+
+
+def test_firebase_project_id_falls_back_to_google_cloud_project() -> None:
+    settings = Settings(GOOGLE_CLOUD_PROJECT="test-project")
+
+    assert settings.resolved_firebase_project_id == "test-project"
 
 
 def test_gemini_document_model_defaults_to_flash() -> None:

@@ -6,10 +6,19 @@ terraform {
       source  = "hashicorp/google"
       version = ">= 6.0, < 8.0"
     }
+    google-beta = {
+      source  = "hashicorp/google-beta"
+      version = ">= 6.0, < 8.0"
+    }
   }
 }
 
 provider "google" {
+  project = var.project_id
+  region  = var.region
+}
+
+provider "google-beta" {
   project = var.project_id
   region  = var.region
 }
@@ -101,6 +110,25 @@ resource "google_firestore_database" "default" {
 
   depends_on = [
     google_project_service.apis["firestore.googleapis.com"],
+  ]
+}
+
+resource "google_firebase_project" "default" {
+  provider = google-beta
+  project  = var.project_id
+
+  depends_on = [
+    google_project_service.apis["firebase.googleapis.com"],
+    google_project_service.apis["identitytoolkit.googleapis.com"],
+  ]
+}
+
+resource "google_identity_platform_config" "default" {
+  provider = google-beta
+  project  = google_firebase_project.default.project
+
+  depends_on = [
+    google_project_service.apis["identitytoolkit.googleapis.com"],
   ]
 }
 

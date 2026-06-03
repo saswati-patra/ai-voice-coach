@@ -50,10 +50,12 @@ Copy `backend/.env.example` to `backend/.env` for local backend overrides. `.env
 
 Key settings:
 
+- `AUTH_MODE`: `dev` by default; use `firebase` to require Firebase ID tokens
 - `DEV_USER_ID`: fixed local development user, default `dev-user`
 - `GOOGLE_CLOUD_ENABLED`: keeps real Google Cloud calls disabled by default
 - `GOOGLE_CLOUD_PROJECT`: future Google Cloud project ID
 - `GOOGLE_CLOUD_LOCATION`: future Vertex AI location, default `us-central1`
+- `FIREBASE_PROJECT_ID`: Firebase project for token verification, defaults to `GOOGLE_CLOUD_PROJECT`
 - `GEMINI_LIVE_MODEL`: Gemini Live model name used when Google Cloud mode is enabled
 - `GEMINI_RESPONSE_MODALITIES`: response modality for Gemini Live, default `audio`
 
@@ -112,7 +114,7 @@ tofu -chdir=infra/tofu plan
 tofu -chdir=infra/tofu apply
 ```
 
-OpenTofu manages the dev cloud foundation: APIs, Firestore, Cloud Storage, Artifact Registry, a backend service account, and baseline IAM.
+OpenTofu manages the dev cloud foundation: APIs, Firebase Auth foundation, Firestore, Cloud Storage, Artifact Registry, a backend service account, and baseline IAM.
 
 After apply, configure the backend with the OpenTofu outputs:
 
@@ -123,13 +125,17 @@ cp backend/.env.example backend/.env
 Set:
 
 ```bash
+AUTH_MODE=dev
 GOOGLE_CLOUD_ENABLED=true
 GOOGLE_CLOUD_PROJECT=your-google-cloud-project-id
 GOOGLE_CLOUD_LOCATION=us-central1
 GOOGLE_CLOUD_STORAGE_BUCKET=<value from tofu output study_materials_bucket_name>
+FIREBASE_PROJECT_ID=<value from tofu output firebase_project_id>
 GEMINI_LIVE_MODEL=gemini-live-2.5-flash-native-audio
 GEMINI_DOCUMENT_MODEL=gemini-2.5-flash
 ```
+
+When `AUTH_MODE=firebase`, user-owned REST routes require `Authorization: Bearer <Firebase ID token>`. The voice WebSocket uses `/api/v1/ws/voice-session?id_token=<Firebase ID token>`.
 
 ## API
 

@@ -11,6 +11,7 @@ def clear_cache(function):
 def isolate_settings(monkeypatch):
     from ai_voice_coach import config, dependencies
 
+    monkeypatch.setenv("AUTH_MODE", "dev")
     monkeypatch.setenv("GOOGLE_CLOUD_ENABLED", "false")
     clear_cache(config.get_settings)
     clear_cache(dependencies.get_google_cloud_clients)
@@ -19,6 +20,7 @@ def isolate_settings(monkeypatch):
     clear_cache(dependencies.get_learning_memory_store)
     clear_cache(dependencies.get_voice_session_gateway)
     clear_cache(dependencies.get_document_ingestion_gateway)
+    clear_cache(dependencies.get_auth_verifier)
 
     yield
 
@@ -29,3 +31,4 @@ def isolate_settings(monkeypatch):
     clear_cache(dependencies.get_learning_memory_store)
     clear_cache(dependencies.get_voice_session_gateway)
     clear_cache(dependencies.get_document_ingestion_gateway)
+    clear_cache(dependencies.get_auth_verifier)

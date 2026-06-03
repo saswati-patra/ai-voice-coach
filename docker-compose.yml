@@ -7,6 +7,7 @@ services:
       - "8000:8000"
     environment:
       APP_ENV: local
+      AUTH_MODE: dev
       DEV_USER_ID: dev-user
       GOOGLE_CLOUD_ENABLED: "false"
       GOOGLE_CLOUD_LOCATION: us-central1
