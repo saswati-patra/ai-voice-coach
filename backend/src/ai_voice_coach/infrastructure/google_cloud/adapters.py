@@ -1,13 +1,20 @@
 from collections.abc import AsyncIterator
 import asyncio
+from pathlib import PurePath
+from uuid import uuid4
 
 from ai_voice_coach.application.ports import (
     LearningMemoryStore,
+    StudyMaterialDocumentStore,
     StudyMaterialStore,
     VoiceSessionGateway,
 )
 from ai_voice_coach.domain.review_items import ReviewItem
-from ai_voice_coach.domain.study_materials import StudyMaterial, StudyMaterialDraft
+from ai_voice_coach.domain.study_materials import (
+    StoredStudyDocument,
+    StudyMaterial,
+    StudyMaterialDraft,
+)
 from ai_voice_coach.domain.voice_sessions import VoiceEvent
 from ai_voice_coach.config import Settings
 from ai_voice_coach.infrastructure.google_cloud.clients import GoogleCloudClients
@@ -52,6 +59,40 @@ class GoogleCloudStudyMaterialStore(StudyMaterialStore):
             self._clients.firestore.collection("users")
             .document(user_id)
             .collection("study_materials")
+        )
+
+
+class GoogleCloudStudyMaterialDocumentStore(StudyMaterialDocumentStore):
+    def __init__(self, clients: GoogleCloudClients, settings: Settings) -> None:
+        self._clients = clients
+        self._settings = settings
+
+    async def upload(
+        self,
+        user_id: str,
+        filename: str,
+        content_type: str,
+        content: bytes,
+    ) -> StoredStudyDocument:
+        bucket_name = self._settings.google_cloud_storage_bucket
+        if bucket_name is None:
+            raise RuntimeError("GOOGLE_CLOUD_STORAGE_BUCKET is required for document uploads.")
+
+        safe_filename = _safe_filename(filename)
+        storage_path = (
+            f"users/{_safe_path_segment(user_id)}/study_materials/uploads/"
+            f"{uuid4()}-{safe_filename}"
+        )
+        blob = self._clients.storage.bucket(bucket_name).blob(storage_path)
+
+        await asyncio.to_thread(blob.upload_from_string, content, content_type=content_type)
+
+        return StoredStudyDocument(
+            storage_path=storage_path,
+            storage_bucket=bucket_name,
+            original_filename=safe_filename,
+            content_type=content_type,
+            size_bytes=len(content),
         )
 
 
@@ -121,3 +162,12 @@ class GeminiLiveVoiceSessionGateway(VoiceSessionGateway):
                 await session.send_realtime_input(audio_stream_end=True)
                 await session.close()
                 return
+
+
+def _safe_filename(filename: str) -> str:
+    name = PurePath(filename).name.strip()
+    return name or "study-material"
+
+
+def _safe_path_segment(value: str) -> str:
+    return value.replace("/", "_")

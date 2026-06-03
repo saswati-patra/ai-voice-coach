@@ -15,6 +15,7 @@ def isolate_settings(monkeypatch):
     clear_cache(config.get_settings)
     clear_cache(dependencies.get_google_cloud_clients)
     clear_cache(dependencies.get_study_material_store)
+    clear_cache(dependencies.get_study_material_document_store)
     clear_cache(dependencies.get_learning_memory_store)
     clear_cache(dependencies.get_voice_session_gateway)
 
@@ -23,5 +24,6 @@ def isolate_settings(monkeypatch):
     clear_cache(config.get_settings)
     clear_cache(dependencies.get_google_cloud_clients)
     clear_cache(dependencies.get_study_material_store)
+    clear_cache(dependencies.get_study_material_document_store)
     clear_cache(dependencies.get_learning_memory_store)
     clear_cache(dependencies.get_voice_session_gateway)

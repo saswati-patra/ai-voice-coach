@@ -56,6 +56,39 @@ def test_study_materials_round_trip() -> None:
     assert listed.json()[0]["title"] == "Chapter 1 Notes"
 
 
+def test_study_material_upload_round_trip() -> None:
+    client = TestClient(create_app())
+
+    uploaded = client.post(
+        "/api/v1/study-materials/upload",
+        data={"title": "Uploaded Chapter"},
+        files={"file": ("chapter.pdf", b"pdf bytes", "application/pdf")},
+    )
+    listed = client.get("/api/v1/study-materials")
+
+    assert uploaded.status_code == 200
+    body = uploaded.json()
+    assert body["title"] == "Uploaded Chapter"
+    assert body["source_type"] == "pdf"
+    assert body["storage_path"] == "memory://users/dev-user/study_materials/chapter.pdf"
+    assert body["original_filename"] == "chapter.pdf"
+    assert body["content_type"] == "application/pdf"
+    assert body["size_bytes"] == len(b"pdf bytes")
+    assert listed.json()[0]["id"] == body["id"]
+
+
+def test_study_material_upload_rejects_empty_file() -> None:
+    client = TestClient(create_app())
+
+    response = client.post(
+        "/api/v1/study-materials/upload",
+        files={"file": ("empty.txt", b"", "text/plain")},
+    )
+
+    assert response.status_code == 400
+    assert response.json()["detail"] == "Uploaded file is empty."
+
+
 def test_review_items_have_learning_seed() -> None:
     client = TestClient(create_app())
 

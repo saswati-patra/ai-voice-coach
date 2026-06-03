@@ -1,7 +1,8 @@
 import asyncio
 from collections.abc import AsyncIterator
 
-from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, WebSocket
+from fastapi import WebSocketDisconnect
 
 from ai_voice_coach.api.v1.schemas import StudyMaterialCreateRequest, UserProfileResponse
 from ai_voice_coach.application.use_cases import (
@@ -10,6 +11,7 @@ from ai_voice_coach.application.use_cases import (
     ListReviewItems,
     ListStudyMaterials,
     RunVoiceSession,
+    UploadStudyMaterialDocument,
 )
 from ai_voice_coach.dependencies import (
     get_create_study_material,
@@ -18,6 +20,7 @@ from ai_voice_coach.dependencies import (
     get_list_review_items,
     get_list_study_materials,
     get_run_voice_session,
+    get_upload_study_material_document,
 )
 from ai_voice_coach.domain.study_materials import StudyMaterialDraft
 from ai_voice_coach.domain.voice_sessions import VoiceEvent
@@ -47,6 +50,26 @@ async def list_study_materials(
     user_id: str = Depends(get_current_user_id),
 ):
     return await use_case.execute(user_id)
+
+
+@router.post("/study-materials/upload")
+async def upload_study_material_document(
+    file: UploadFile = File(...),
+    title: str | None = Form(default=None),
+    use_case: UploadStudyMaterialDocument = Depends(get_upload_study_material_document),
+    user_id: str = Depends(get_current_user_id),
+):
+    content = await file.read()
+    if not content:
+        raise HTTPException(status_code=400, detail="Uploaded file is empty.")
+
+    return await use_case.execute(
+        user_id=user_id,
+        filename=file.filename or "study-material",
+        content_type=file.content_type or "application/octet-stream",
+        content=content,
+        title=title,
+    )
 
 
 @router.get("/review-items")

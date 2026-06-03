@@ -136,5 +136,6 @@ GEMINI_LIVE_MODEL=gemini-live-2.5-flash-native-audio
 - `GET /api/v1/me`
 - `GET /api/v1/study-materials`
 - `POST /api/v1/study-materials`
+- `POST /api/v1/study-materials/upload`
 - `GET /api/v1/review-items`
 - `WebSocket /api/v1/ws/voice-session`

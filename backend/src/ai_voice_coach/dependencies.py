@@ -1,6 +1,7 @@
 from functools import lru_cache
 
 from ai_voice_coach.application.ports import (
+    StudyMaterialDocumentStore,
     LearningMemoryStore,
     StudyMaterialStore,
     VoiceSessionGateway,
@@ -11,15 +12,18 @@ from ai_voice_coach.application.use_cases import (
     ListReviewItems,
     ListStudyMaterials,
     RunVoiceSession,
+    UploadStudyMaterialDocument,
 )
 from ai_voice_coach.config import get_settings
 from ai_voice_coach.infrastructure.google_cloud.adapters import (
     GeminiLiveVoiceSessionGateway,
+    GoogleCloudStudyMaterialDocumentStore,
     GoogleCloudLearningMemoryStore,
     GoogleCloudStudyMaterialStore,
 )
 from ai_voice_coach.infrastructure.google_cloud.clients import GoogleCloudClients
 from ai_voice_coach.infrastructure.memory.adapters import (
+    InMemoryStudyMaterialDocumentStore,
     InMemoryLearningMemoryStore,
     InMemoryStudyMaterialStore,
     StubVoiceSessionGateway,
@@ -37,6 +41,14 @@ def get_study_material_store() -> StudyMaterialStore:
     if settings.google_cloud_enabled:
         return GoogleCloudStudyMaterialStore(get_google_cloud_clients())
     return InMemoryStudyMaterialStore()
+
+
+@lru_cache
+def get_study_material_document_store() -> StudyMaterialDocumentStore:
+    settings = get_settings()
+    if settings.google_cloud_enabled:
+        return GoogleCloudStudyMaterialDocumentStore(get_google_cloud_clients(), settings)
+    return InMemoryStudyMaterialDocumentStore()
 
 
 @lru_cache
@@ -69,6 +81,13 @@ def get_create_study_material() -> CreateStudyMaterial:
 
 def get_list_study_materials() -> ListStudyMaterials:
     return ListStudyMaterials(get_study_material_store())
+
+
+def get_upload_study_material_document() -> UploadStudyMaterialDocument:
+    return UploadStudyMaterialDocument(
+        get_study_material_document_store(),
+        get_study_material_store(),
+    )
 
 
 def get_list_review_items() -> ListReviewItems:

@@ -39,6 +39,7 @@ To test Gemini Live locally, authenticate with Google Cloud Application Default 
 GOOGLE_CLOUD_ENABLED=true
 GOOGLE_CLOUD_PROJECT=your-google-cloud-project-id
 GOOGLE_CLOUD_LOCATION=us-central1
+GOOGLE_CLOUD_STORAGE_BUCKET=your-study-materials-bucket
 ```
 
 ## API
@@ -47,9 +48,18 @@ GOOGLE_CLOUD_LOCATION=us-central1
 - `GET /api/v1/me`
 - `GET /api/v1/study-materials`
 - `POST /api/v1/study-materials`
+- `POST /api/v1/study-materials/upload`
 - `GET /api/v1/review-items`
 - `WebSocket /api/v1/ws/voice-session`
 
 In stub mode, study materials are stored in memory for the life of the process. In Google
 Cloud mode, study material metadata is persisted in Firestore under
-`users/{user_id}/study_materials/{material_id}`.
+`users/{user_id}/study_materials/{material_id}`. Uploaded study documents are stored in
+Cloud Storage and referenced from the Firestore metadata.
+
+Upload a document with:
+
+```bash
+curl -F "title=Chapter 1" -F "file=@/path/to/chapter-1.pdf;type=application/pdf" \
+  http://localhost:8000/api/v1/study-materials/upload
+```

@@ -2,6 +2,7 @@ from ai_voice_coach.config import Settings
 from ai_voice_coach.dependencies import get_voice_session_gateway
 from ai_voice_coach.infrastructure.google_cloud.adapters import (
     GeminiLiveVoiceSessionGateway,
+    GoogleCloudStudyMaterialDocumentStore,
     GoogleCloudStudyMaterialStore,
 )
 from ai_voice_coach.infrastructure.memory.adapters import StubVoiceSessionGateway
@@ -10,6 +11,7 @@ from ai_voice_coach.infrastructure.memory.adapters import StubVoiceSessionGatewa
 class FakeClients:
     genai = object()
     firestore = object()
+    storage = object()
 
 
 def test_stub_mode_selects_stub_voice_gateway() -> None:
@@ -52,6 +54,24 @@ def test_cloud_mode_selects_firestore_study_material_store(monkeypatch) -> None:
 
     config.get_settings.cache_clear()
     dependencies.get_study_material_store.cache_clear()
+
+
+def test_cloud_mode_selects_cloud_storage_document_store(monkeypatch) -> None:
+    from ai_voice_coach import config, dependencies
+
+    monkeypatch.setenv("GOOGLE_CLOUD_ENABLED", "true")
+    monkeypatch.setenv("GOOGLE_CLOUD_PROJECT", "test-project")
+    monkeypatch.setenv("GOOGLE_CLOUD_STORAGE_BUCKET", "study-materials-bucket")
+    config.get_settings.cache_clear()
+    dependencies.get_study_material_document_store.cache_clear()
+    monkeypatch.setattr(dependencies, "get_google_cloud_clients", lambda: FakeClients())
+
+    store = dependencies.get_study_material_document_store()
+
+    assert isinstance(store, GoogleCloudStudyMaterialDocumentStore)
+
+    config.get_settings.cache_clear()
+    dependencies.get_study_material_document_store.cache_clear()
 
 
 def test_gemini_response_modalities_are_parsed_from_env_string() -> None:

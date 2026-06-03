@@ -148,7 +148,7 @@ uv run pytest
 Expected:
 
 ```text
-18 passed
+29 passed
 ```
 
 Verify config:
@@ -192,7 +192,29 @@ Expected:
 {"status":"ok","app_name":"AI Voice Coach","app_env":"local","adapter_mode":"google-cloud"}
 ```
 
-## 11. Browser Voice Check
+## 11. Study Material Upload Smoke Test
+
+Keep the backend running, then in another terminal:
+
+```bash
+printf "Photosynthesis notes" >/tmp/ai-voice-coach-notes.txt
+
+curl -s \
+  -F "title=Photosynthesis Notes" \
+  -F "file=@/tmp/ai-voice-coach-notes.txt;type=text/plain" \
+  http://localhost:8000/api/v1/study-materials/upload
+
+curl -s http://localhost:8000/api/v1/study-materials
+```
+
+Expected:
+
+- The upload response includes `storage_path`, `storage_bucket`, `original_filename`, and `size_bytes`.
+- The list response includes the uploaded material.
+- The Cloud Storage bucket contains the uploaded object.
+- Firestore has metadata under `users/dev-user/study_materials/{material_id}`.
+
+## 12. Browser Voice Check
 
 Open:
 
@@ -207,7 +229,7 @@ Then:
 - Speak a short phrase
 - Watch the log and listen for a response
 
-## 12. WebSocket Text Smoke Test
+## 13. WebSocket Text Smoke Test
 
 Keep the backend running, then in another terminal:
 
@@ -240,7 +262,7 @@ asyncio.run(main())
 PY
 ```
 
-## 13. Docker Stub-Mode Check
+## 14. Docker Stub-Mode Check
 
 Docker Compose still defaults to stub mode:
 

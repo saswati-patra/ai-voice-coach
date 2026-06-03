@@ -7,11 +7,13 @@ from ai_voice_coach.application.use_cases import (
     ListReviewItems,
     ListStudyMaterials,
     RunVoiceSession,
+    UploadStudyMaterialDocument,
 )
 from ai_voice_coach.domain.study_materials import StudyMaterialDraft
 from ai_voice_coach.domain.voice_sessions import VoiceEvent
 from ai_voice_coach.infrastructure.memory.adapters import (
     InMemoryLearningMemoryStore,
+    InMemoryStudyMaterialDocumentStore,
     InMemoryStudyMaterialStore,
     StubVoiceSessionGateway,
 )
@@ -28,6 +30,30 @@ async def test_create_and_list_study_material_use_cases() -> None:
 
     assert created.title == "Chapter 1 Notes"
     assert listed == [created]
+
+
+@pytest.mark.asyncio
+async def test_upload_study_material_document_use_case_creates_material_metadata() -> None:
+    material_store = InMemoryStudyMaterialStore()
+    document_store = InMemoryStudyMaterialDocumentStore()
+    use_case = UploadStudyMaterialDocument(document_store, material_store)
+
+    uploaded = await use_case.execute(
+        user_id="dev-user",
+        filename="chapter-1.pdf",
+        content_type="application/pdf",
+        content=b"pdf bytes",
+        title="Chapter 1",
+    )
+    listed = await material_store.list_for_user("dev-user")
+
+    assert uploaded.title == "Chapter 1"
+    assert uploaded.source_type == "pdf"
+    assert uploaded.storage_path == "memory://users/dev-user/study_materials/chapter-1.pdf"
+    assert uploaded.original_filename == "chapter-1.pdf"
+    assert uploaded.content_type == "application/pdf"
+    assert uploaded.size_bytes == len(b"pdf bytes")
+    assert listed == [uploaded]
 
 
 @pytest.mark.asyncio
