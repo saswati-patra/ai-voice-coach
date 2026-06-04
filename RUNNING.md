@@ -57,6 +57,13 @@ The OpenTofu Google providers use the same project for `billing_project` and
 `user_project_override`, so Application Default Credentials must have the quota
 project set to `PROJECT_ID`.
 
+Before applying Firebase resources for the first time, open the
+[Firebase console](https://console.firebase.google.com/) while signed in with
+the same Google account and accept the Firebase Terms of Service. If the console
+requires creating a temporary Firebase project to accept the terms, create one
+and delete it afterward. Do not manually add Firebase to this project unless you
+intend to import that resource into OpenTofu state.
+
 ## 4. One-Time Bootstrap API
 
 OpenTofu can manage most APIs, but Service Usage and Cloud Resource Manager
