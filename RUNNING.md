@@ -53,12 +53,20 @@ gcloud config set project "$PROJECT_ID"
 gcloud auth application-default set-quota-project "$PROJECT_ID"
 ```
 
+The OpenTofu Google providers use the same project for `billing_project` and
+`user_project_override`, so Application Default Credentials must have the quota
+project set to `PROJECT_ID`.
+
 ## 4. One-Time Bootstrap API
 
-OpenTofu can manage most APIs, but Service Usage must be enabled first:
+OpenTofu can manage most APIs, but Service Usage and Cloud Resource Manager
+must be enabled first:
 
 ```bash
-gcloud services enable serviceusage.googleapis.com --project "$PROJECT_ID"
+gcloud services enable \
+  serviceusage.googleapis.com \
+  cloudresourcemanager.googleapis.com \
+  --project "$PROJECT_ID"
 ```
 
 ## 5. Configure OpenTofu Variables
