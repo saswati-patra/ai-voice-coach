@@ -1,41 +1,54 @@
 # AI Voice Coach Frontend
 
-Local browser voice harness for testing the FastAPI voice-session WebSocket.
-
-This is intentionally a framework-free static frontend for now. It lets the learning project prove microphone capture, WebSocket streaming, and returned audio playback before introducing a full frontend stack.
+React/Vite frontend for the AI Voice Coach learning project. It includes Firebase email/password auth, study material upload/ingestion controls, review items, and the local microphone voice harness.
 
 ## Structure
 
 ```text
-static/index.html  Browser mic harness and local UI
+src/
+  api.ts        Backend API client with Firebase bearer tokens
+  audio.ts      PCM audio helpers for the voice harness
+  firebase.ts   Firebase Web SDK setup
+  main.tsx      React app
+  styles.css    App styles
 ```
 
-## Run
+## Local Development
 
-The frontend is served by the backend.
-
-From the repo root:
+Install dependencies:
 
 ```bash
-docker compose up
+npm install
 ```
 
-Or from `backend/`:
+Copy the example environment file:
 
 ```bash
-uv run uvicorn ai_voice_coach.main:app --reload --app-dir src
+cp .env.example .env
 ```
 
-Then open <http://localhost:8000>.
+For dev-auth backend mode, Firebase values can stay blank. For Firebase auth mode, populate the `VITE_FIREBASE_*` values from OpenTofu outputs after apply.
 
-## Behavior
+Run the backend on port 8000, then run Vite:
 
-- Connects to `/api/v1/ws/voice-session`.
-- Captures microphone audio using Web Audio APIs.
-- Sends base64 16 kHz mono PCM16 `audio.chunk` events.
-- Plays returned base64 PCM16 `audio.chunk` events.
-- Works in backend stub mode for connection and logging checks.
+```bash
+npm run dev
+```
 
-## Future Direction
+Open <http://localhost:5173>.
 
-Keep this static harness until auth, uploads, study-material management, and progress views need a real app shell. At that point, replace or extend this folder with a frontend app such as Vite/React.
+## Production Build
+
+```bash
+npm run build
+```
+
+The backend serves `frontend/dist` when present. Docker builds the React app automatically before packaging the FastAPI runtime image.
+
+## Firebase Auth
+
+The frontend sends `Authorization: Bearer <Firebase ID token>` to REST endpoints when a user is signed in. The voice WebSocket sends the same token as:
+
+```text
+/api/v1/ws/voice-session?id_token=<Firebase ID token>
+```

@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: backend/Dockerfile
     ports:
-      - "8000:8000"
+      - "${API_PORT:-8000}:8000"
     environment:
       APP_ENV: local
       AUTH_MODE: dev
@@ -13,5 +13,4 @@ services:
       GOOGLE_CLOUD_LOCATION: us-central1
     volumes:
       - ./backend/src:/app/backend/src
-      - ./frontend/static:/app/frontend/static
     command: uv run uvicorn ai_voice_coach.main:app --host 0.0.0.0 --port 8000 --reload --app-dir /app/backend/src

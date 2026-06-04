@@ -143,7 +143,7 @@ def test_auth_mode_defaults_to_dev() -> None:
 
 
 def test_firebase_project_id_falls_back_to_google_cloud_project() -> None:
-    settings = Settings(GOOGLE_CLOUD_PROJECT="test-project")
+    settings = Settings(GOOGLE_CLOUD_PROJECT="test-project", FIREBASE_PROJECT_ID=None)
 
     assert settings.resolved_firebase_project_id == "test-project"
 

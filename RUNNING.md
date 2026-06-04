@@ -91,6 +91,7 @@ OpenTofu manages:
 
 - Required Google Cloud APIs
 - Firebase Auth foundation
+- Firebase Web App config
 - Firestore `(default)` database
 - Study materials Cloud Storage bucket
 - Artifact Registry Docker repository
@@ -111,6 +112,7 @@ tofu -chdir=infra/tofu import \
 tofu -chdir=infra/tofu output
 tofu -chdir=infra/tofu output -raw study_materials_bucket_name
 tofu -chdir=infra/tofu output -raw firebase_project_id
+tofu -chdir=infra/tofu output -json firebase_frontend_env
 tofu -chdir=infra/tofu output -raw backend_service_account_email
 tofu -chdir=infra/tofu output -raw artifact_registry_repository_id
 ```
@@ -143,7 +145,28 @@ GEMINI_SYSTEM_INSTRUCTION=You are an AI voice study coach. Ask concise questions
 
 Do not commit `backend/.env`.
 
-## 9. Verify Backend Locally
+## 9. Configure Frontend Environment
+
+```bash
+cd frontend
+cp .env.example .env
+```
+
+For `AUTH_MODE=dev`, Firebase values can stay blank. For `AUTH_MODE=firebase`, copy
+the values from:
+
+```bash
+tofu -chdir=../infra/tofu output -json firebase_frontend_env
+```
+
+Install and build:
+
+```bash
+npm install
+npm run build
+```
+
+## 10. Verify Backend Locally
 
 ```bash
 cd backend
@@ -186,7 +209,7 @@ live model: gemini-live-2.5-flash-native-audio
 document model: gemini-2.5-flash
 ```
 
-## 10. Run Backend
+## 11. Run Backend
 
 ```bash
 uv run uvicorn ai_voice_coach.main:app --reload --app-dir src
@@ -204,7 +227,24 @@ Expected:
 {"status":"ok","app_name":"AI Voice Coach","app_env":"local","adapter_mode":"google-cloud"}
 ```
 
-## 11. Study Material Upload And Ingestion Smoke Test
+## 12. Run React Frontend
+
+In another terminal:
+
+```bash
+cd frontend
+npm run dev
+```
+
+Open:
+
+```text
+http://localhost:5173
+```
+
+Vite proxies `/api` and `/health` to the backend on port 8000.
+
+## 13. Study Material Upload And Ingestion Smoke Test
 
 Keep the backend running, then in another terminal:
 
@@ -239,12 +279,12 @@ To test backend Firebase mode later, set `AUTH_MODE=firebase` and send
 `Authorization: Bearer <Firebase ID token>` on REST requests. The voice WebSocket uses
 `/api/v1/ws/voice-session?id_token=<Firebase ID token>`.
 
-## 12. Browser Voice Check
+## 14. Browser Voice Check
 
 Open:
 
 ```text
-http://localhost:8000
+http://localhost:5173
 ```
 
 Then:
@@ -254,7 +294,7 @@ Then:
 - Speak a short phrase
 - Watch the log and listen for a response
 
-## 13. WebSocket Text Smoke Test
+## 15. WebSocket Text Smoke Test
 
 Keep the backend running, then in another terminal:
 
@@ -287,7 +327,7 @@ asyncio.run(main())
 PY
 ```
 
-## 14. Docker Stub-Mode Check
+## 16. Docker Stub-Mode Check
 
 Docker Compose still defaults to stub mode:
 
@@ -295,5 +335,13 @@ Docker Compose still defaults to stub mode:
 docker compose build
 docker compose up -d
 curl http://localhost:8000/health
+docker compose down
+```
+
+If port `8000` is already in use locally, publish the container on another host port:
+
+```bash
+API_PORT=8001 docker compose up -d
+curl http://localhost:8001/health
 docker compose down
 ```

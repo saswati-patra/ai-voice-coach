@@ -127,9 +127,32 @@ resource "google_identity_platform_config" "default" {
   provider = google-beta
   project  = google_firebase_project.default.project
 
+  sign_in {
+    email {
+      enabled           = true
+      password_required = true
+    }
+  }
+
   depends_on = [
     google_project_service.apis["identitytoolkit.googleapis.com"],
   ]
+}
+
+resource "google_firebase_web_app" "frontend" {
+  provider     = google-beta
+  project      = google_firebase_project.default.project
+  display_name = "AI Voice Coach Frontend (${var.environment})"
+
+  depends_on = [
+    google_identity_platform_config.default,
+  ]
+}
+
+data "google_firebase_web_app_config" "frontend" {
+  provider   = google-beta
+  project    = google_firebase_web_app.frontend.project
+  web_app_id = google_firebase_web_app.frontend.app_id
 }
 
 resource "google_storage_bucket" "study_materials" {

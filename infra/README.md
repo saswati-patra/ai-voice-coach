@@ -12,7 +12,7 @@ tofu/
   terraform.tfvars.example
 ```
 
-The current OpenTofu configuration provisions the dev cloud foundation: required APIs, Firebase Auth foundation, Firestore, Cloud Storage, Artifact Registry, a backend service account, and baseline IAM.
+The current OpenTofu configuration provisions the dev cloud foundation: required APIs, Firebase Auth foundation, Firebase Web App config, Firestore, Cloud Storage, Artifact Registry, a backend service account, and baseline IAM.
 
 ## Prerequisites
 
@@ -66,26 +66,27 @@ Useful outputs after apply:
 ```bash
 tofu -chdir=infra/tofu output
 tofu -chdir=infra/tofu output -raw study_materials_bucket_name
+tofu -chdir=infra/tofu output -raw firebase_project_id
+tofu -chdir=infra/tofu output -json firebase_frontend_env
 tofu -chdir=infra/tofu output -raw backend_service_account_email
 ```
 
 Use `study_materials_bucket_name` in `backend/.env` as `GOOGLE_CLOUD_STORAGE_BUCKET`.
+Use `firebase_frontend_env` for `frontend/.env`.
 
 ## State And Secrets
 
 Do not commit:
 
 - `.terraform/`
-- `.terraform.lock.hcl`
 - `*.tfstate`
 - `*.tfvars`
 - Google Cloud credential files
 
-Track only example files such as `terraform.tfvars.example`.
+Track provider locks and example files such as `.terraform.lock.hcl` and `terraform.tfvars.example`.
 
 ## Planned Google Cloud Resources
 
 - Cloud Run deployment
-- Firebase Web App and sign-in provider setup for the frontend milestone
 - Secret Manager secrets and secret versions
 - Remote state storage

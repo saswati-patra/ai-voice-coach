@@ -18,12 +18,19 @@ class HealthResponse(BaseModel):
 
 
 def frontend_index_path() -> Path:
-    return frontend_static_dir() / "index.html"
+    dist_index = frontend_dist_dir() / "index.html"
+    if dist_index.exists():
+        return dist_index
+    return frontend_source_dir() / "index.html"
 
 
-def frontend_static_dir() -> Path:
+def frontend_source_dir() -> Path:
     backend_dir = Path(__file__).resolve().parents[2]
-    return backend_dir.parent / "frontend" / "static"
+    return backend_dir.parent / "frontend"
+
+
+def frontend_dist_dir() -> Path:
+    return frontend_source_dir() / "dist"
 
 
 def create_app() -> FastAPI:
@@ -36,7 +43,9 @@ def create_app() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
-    app.mount("/static", StaticFiles(directory=frontend_static_dir()), name="static")
+    assets_dir = frontend_dist_dir() / "assets"
+    if assets_dir.exists():
+        app.mount("/assets", StaticFiles(directory=assets_dir), name="assets")
 
     @app.get("/", include_in_schema=False)
     async def index() -> FileResponse:

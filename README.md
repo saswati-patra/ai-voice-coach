@@ -6,7 +6,7 @@ Google Cloud-only AI voice study coach learning project.
 
 ```text
 backend/          FastAPI backend, Python package, tests, Dockerfile
-frontend/static/  Local browser voice harness
+frontend/         React/Vite frontend with Firebase Auth and voice harness
 infra/tofu/       OpenTofu for Google Cloud foundation resources
 ```
 
@@ -23,7 +23,17 @@ uv run pytest
 uv run uvicorn ai_voice_coach.main:app --reload --app-dir src
 ```
 
-Open <http://localhost:8000> for the browser voice harness.
+Open <http://localhost:8000> for the built frontend if `frontend/dist` exists.
+
+## Frontend
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Run the backend on port 8000, then open <http://localhost:5173>. Vite proxies `/api` and `/health` to FastAPI.
 
 ## Docker
 
@@ -34,15 +44,15 @@ docker compose build
 docker compose up
 ```
 
-Then check <http://localhost:8000/health>.
+Then check <http://localhost:8000/health>. If port `8000` is already in use, run with `API_PORT=8001 docker compose up` and check <http://localhost:8001/health>.
 
-## Browser Voice Harness
+## Browser App
 
-The local page at <http://localhost:8000> connects to `/api/v1/ws/voice-session`, captures microphone audio, and streams `audio.chunk` events.
+The React app provides Firebase email/password auth, study material upload/ingestion controls, review items, and the microphone voice harness.
 
-In stub mode, click **Connect**, then **Start Mic**. Stub mode logs received audio chunks but does not return playable audio.
+In stub mode, the app works without Firebase config. For Firebase mode, fill `frontend/.env` with the Firebase Web App values from OpenTofu and set backend `AUTH_MODE=firebase`.
 
-For Gemini mode, complete the ADC setup below, set `GOOGLE_CLOUD_ENABLED=true`, then use the same page. The browser sends 16 kHz mono PCM16 chunks as base64 JSON and plays returned 24 kHz PCM16 audio chunks.
+For Gemini mode, complete the ADC setup below and set `GOOGLE_CLOUD_ENABLED=true`. The browser sends 16 kHz mono PCM16 chunks as base64 JSON and plays returned 24 kHz PCM16 audio chunks.
 
 ## Configuration
 
@@ -116,7 +126,7 @@ tofu -chdir=infra/tofu apply
 
 OpenTofu manages the dev cloud foundation: APIs, Firebase Auth foundation, Firestore, Cloud Storage, Artifact Registry, a backend service account, and baseline IAM.
 
-After apply, configure the backend with the OpenTofu outputs:
+After apply, configure the backend and frontend with the OpenTofu outputs:
 
 ```bash
 cp backend/.env.example backend/.env
@@ -134,6 +144,8 @@ FIREBASE_PROJECT_ID=<value from tofu output firebase_project_id>
 GEMINI_LIVE_MODEL=gemini-live-2.5-flash-native-audio
 GEMINI_DOCUMENT_MODEL=gemini-2.5-flash
 ```
+
+Use `tofu -chdir=infra/tofu output -json firebase_frontend_env` for the frontend Firebase values.
 
 When `AUTH_MODE=firebase`, user-owned REST routes require `Authorization: Bearer <Firebase ID token>`. The voice WebSocket uses `/api/v1/ws/voice-session?id_token=<Firebase ID token>`.
 

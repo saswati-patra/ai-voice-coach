@@ -21,7 +21,7 @@ uv run pytest
 uv run uvicorn ai_voice_coach.main:app --reload --app-dir src
 ```
 
-The backend serves the local voice harness from `../frontend/static/index.html`.
+The backend serves the built React frontend from `../frontend/dist` when the frontend has been built.
 
 ## Configuration
 

@@ -33,6 +33,24 @@ output "firebase_project_id" {
   value       = google_firebase_project.default.project
 }
 
+output "firebase_web_app_id" {
+  description = "Firebase Web App ID for the frontend."
+  value       = google_firebase_web_app.frontend.app_id
+}
+
+output "firebase_frontend_env" {
+  description = "Firebase Web App config values for frontend/.env."
+  value = {
+    VITE_FIREBASE_API_KEY             = data.google_firebase_web_app_config.frontend.api_key
+    VITE_FIREBASE_AUTH_DOMAIN         = data.google_firebase_web_app_config.frontend.auth_domain
+    VITE_FIREBASE_PROJECT_ID          = data.google_firebase_web_app_config.frontend.project
+    VITE_FIREBASE_APP_ID              = google_firebase_web_app.frontend.app_id
+    VITE_FIREBASE_STORAGE_BUCKET      = data.google_firebase_web_app_config.frontend.storage_bucket
+    VITE_FIREBASE_MESSAGING_SENDER_ID = data.google_firebase_web_app_config.frontend.messaging_sender_id
+  }
+  sensitive = true
+}
+
 output "study_materials_bucket_name" {
   description = "Cloud Storage bucket for uploaded study materials."
   value       = google_storage_bucket.study_materials.name

@@ -20,17 +20,22 @@ def test_index_serves_voice_harness() -> None:
 
     assert response.status_code == 200
     assert "AI Voice Coach" in response.text
-    assert "/api/v1/ws/voice-session" in response.text
-    assert "/static/styles.css" in response.text
+    assert 'id="root"' in response.text
 
 
-def test_static_stylesheet_is_served() -> None:
+def test_frontend_asset_is_served_after_build() -> None:
     client = TestClient(create_app())
 
-    response = client.get("/static/styles.css")
+    index = client.get("/")
+    asset_path = index.text.split('src="', 1)[1].split('"', 1)[0]
+    if not asset_path.startswith("/assets/"):
+        assert asset_path == "/src/main.tsx"
+        return
+
+    response = client.get(asset_path)
 
     assert response.status_code == 200
-    assert "button:disabled" in response.text
+    assert "AI Voice Coach" in response.text or "firebase" in response.text
 
 
 def test_me_returns_local_dev_user() -> None:
