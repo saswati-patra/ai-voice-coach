@@ -64,6 +64,12 @@ p {
   margin-bottom: 18px;
 }
 
+.top-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .top-bar h1 {
   font-size: 30px;
   line-height: 1.1;
@@ -94,6 +100,8 @@ p {
 }
 
 .auth-grid,
+.config-grid,
+.identity-line,
 .upload-row,
 .controls {
   display: flex;
@@ -104,6 +112,48 @@ p {
 
 .auth-grid input {
   width: min(260px, 100%);
+}
+
+.config-grid {
+  margin-bottom: 12px;
+}
+
+.config-grid span,
+.identity-line span,
+.notice {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #4d5661;
+  font-size: 13px;
+}
+
+.identity-line {
+  align-items: center;
+}
+
+.identity-line strong {
+  font-size: 14px;
+}
+
+.identity-line span {
+  max-width: min(420px, 100%);
+  overflow-wrap: anywhere;
+}
+
+.notice {
+  border: 1px solid #f0c46a;
+  background: #fff8e4;
+  color: #6d4b00;
+  border-radius: 6px;
+  margin-bottom: 12px;
+  padding: 9px 10px;
+}
+
+.notice.warning {
+  border-color: #efb6ad;
+  background: #fff4f2;
+  color: #9b261c;
 }
 
 .upload-row input[type="text"],
@@ -156,6 +206,22 @@ p {
   line-height: 1.45;
 }
 
+.concept-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  grid-column: 1 / -1;
+}
+
+.concept-list span {
+  border: 1px solid #d5dbe3;
+  background: #f8fafc;
+  border-radius: 999px;
+  color: #3d4650;
+  font-size: 12px;
+  padding: 4px 8px;
+}
+
 .review-list {
   display: flex;
   flex-wrap: wrap;
@@ -177,6 +243,11 @@ p {
   color: #174ea6;
 }
 
+.status-pill.connecting {
+  border-color: #c9b266;
+  color: #755f00;
+}
+
 .status-pill.recording {
   border-color: #76b98a;
   color: #0b6b2b;
@@ -185,6 +256,27 @@ p {
 .status-pill.error {
   border-color: #e69a91;
   color: #b3261e;
+}
+
+.status-pill.dev {
+  border-color: #a0b7d8;
+  color: #315982;
+}
+
+.status-pill.firebase,
+.status-pill.signed-in {
+  border-color: #76b98a;
+  color: #0b6b2b;
+}
+
+.status-pill.signed-out {
+  border-color: #d8b1aa;
+  color: #9b261c;
+}
+
+.empty-state {
+  color: #626a73;
+  font-size: 14px;
 }
 
 .voice-log {
@@ -206,6 +298,8 @@ p {
   }
 
   .auth-grid,
+  .config-grid,
+  .identity-line,
   .upload-row,
   .controls {
     align-items: stretch;

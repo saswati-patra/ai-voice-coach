@@ -174,6 +174,23 @@ the values from:
 tofu -chdir=../infra/tofu output -json firebase_frontend_env
 ```
 
+Use this local frontend shape when the backend is running on port 8000 and Vite
+is proxying `/api` and `/health`:
+
+```env
+VITE_AUTH_MODE=firebase
+VITE_API_BASE_URL=
+VITE_WS_BASE_URL=
+```
+
+Use Cloud Run URLs only after the backend is deployed on a different origin:
+
+```env
+VITE_AUTH_MODE=firebase
+VITE_API_BASE_URL=https://your-cloud-run-url
+VITE_WS_BASE_URL=wss://your-cloud-run-url
+```
+
 Install and build:
 
 ```bash
@@ -258,6 +275,10 @@ http://localhost:5173
 ```
 
 Vite proxies `/api` and `/health` to the backend on port 8000.
+
+The frontend shows the active auth mode, API target, WebSocket target, and
+Firebase config status. In Firebase mode, upload, ingest, refresh, and voice
+session actions are disabled until a Firebase user is signed in.
 
 ## 13. Study Material Upload And Ingestion Smoke Test
 

@@ -1,3 +1,4 @@
+import { apiBaseUrl, wsBaseUrl } from "./config";
 import { getCurrentIdToken } from "./firebase";
 
 export type UserProfile = {
@@ -31,7 +32,15 @@ export type ReviewItem = {
   created_at: string;
 };
 
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "";
+export class ApiError extends Error {
+  constructor(
+    message: string,
+    public readonly status: number
+  ) {
+    super(message);
+    this.name = "ApiError";
+  }
+}
 
 async function authHeaders(): Promise<HeadersInit> {
   const token = await getCurrentIdToken();
@@ -56,8 +65,12 @@ async function apiFetch<T>(path: string, init: RequestInit = {}): Promise<T> {
   });
 
   if (!response.ok) {
-    const detail = await response.json().catch(() => ({}));
-    throw new Error(detail.detail || `Request failed with ${response.status}`);
+    const detail = await response.json().catch(() => null);
+    const message =
+      typeof detail?.detail === "string"
+        ? detail.detail
+        : `Request failed with ${response.status}`;
+    throw new ApiError(message, response.status);
   }
 
   return response.json() as Promise<T>;
@@ -95,9 +108,8 @@ export function listReviewItems(): Promise<ReviewItem[]> {
 }
 
 export function buildWebSocketUrl(idToken: string | null): string {
-  const explicitBase = import.meta.env.VITE_WS_BASE_URL;
   const protocol = window.location.protocol === "https:" ? "wss" : "ws";
-  const base = explicitBase || `${protocol}://${window.location.host}`;
+  const base = wsBaseUrl || `${protocol}://${window.location.host}`;
   const url = new URL("/api/v1/ws/voice-session", base);
 
   if (idToken) {

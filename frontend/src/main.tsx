@@ -1,8 +1,12 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import {
+  AlertTriangle,
   BookOpen,
+  CheckCircle2,
+  Cloud,
   FileUp,
+  Info,
   LogIn,
   LogOut,
   Mic,
@@ -15,6 +19,7 @@ import {
   Volume2,
 } from "lucide-react";
 import {
+  ApiError,
   buildWebSocketUrl,
   getMe,
   ingestStudyMaterial,
@@ -34,6 +39,7 @@ import {
   parseSampleRate,
   pcm16ToFloat32,
 } from "./audio";
+import { apiBaseUrl, authMode, displayTarget, requiresFirebaseAuth, wsBaseUrl } from "./config";
 import {
   auth,
   createUserWithEmailAndPassword,
@@ -46,13 +52,26 @@ import {
 } from "./firebase";
 import "./styles.css";
 
-type VoiceStatus = "disconnected" | "connected" | "recording" | "error";
+type VoiceStatus = "disconnected" | "connecting" | "connected" | "recording" | "error";
 type ServerEvent = {
   type: string;
   payload?: Record<string, string>;
 };
 
+function messageFromError(error: unknown, fallback: string): string {
+  if (error instanceof ApiError && error.status === 401) {
+    return "Sign in again. Firebase token is missing or expired.";
+  }
+
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  return fallback;
+}
+
 function App() {
+  const [authReady, setAuthReady] = useState(!firebaseConfigured);
   const [authUser, setAuthUser] = useState<User | null>(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -81,34 +100,55 @@ function App() {
     ]);
   }, []);
 
-  const refreshData = useCallback(async () => {
-    setLoading(true);
-    try {
-      const [me, studyMaterials, reviews] = await Promise.all([
-        getMe(),
-        listStudyMaterials(),
-        listReviewItems(),
-      ]);
-      setProfile(`${me.display_name} (${me.id})`);
-      setMaterials(studyMaterials);
-      setReviewItems(reviews);
-      setAuthMessage("");
-    } catch (error) {
-      setAuthMessage(error instanceof Error ? error.message : "Unable to load data.");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const refreshData = useCallback(
+    async (currentUser: User | null = authUser) => {
+      if (requiresFirebaseAuth && !firebaseConfigured) {
+        setProfile("Firebase config missing");
+        setMaterials([]);
+        setReviewItems([]);
+        setAuthMessage("Set VITE_FIREBASE_* values before using Firebase auth mode.");
+        return;
+      }
+
+      if (requiresFirebaseAuth && !currentUser) {
+        setProfile("Signed out");
+        setMaterials([]);
+        setReviewItems([]);
+        setAuthMessage("Sign in to use the cloud workspace.");
+        return;
+      }
+
+      setLoading(true);
+      try {
+        const [me, studyMaterials, reviews] = await Promise.all([
+          getMe(),
+          listStudyMaterials(),
+          listReviewItems(),
+        ]);
+        setProfile(`${me.display_name} (${me.id})`);
+        setMaterials(studyMaterials);
+        setReviewItems(reviews);
+        setAuthMessage("");
+      } catch (error) {
+        setAuthMessage(messageFromError(error, "Unable to load data."));
+      } finally {
+        setLoading(false);
+      }
+    },
+    [authUser]
+  );
 
   useEffect(() => {
     if (!auth) {
-      refreshData();
+      setAuthReady(true);
+      refreshData(null);
       return;
     }
 
     return onAuthStateChanged(auth, (user) => {
       setAuthUser(user);
-      refreshData();
+      setAuthReady(true);
+      refreshData(user);
     });
   }, [refreshData]);
 
@@ -118,12 +158,17 @@ function App() {
       return;
     }
 
+    if (!email || !password) {
+      setAuthMessage("Enter email and password.");
+      return;
+    }
+
     try {
       await signInWithEmailAndPassword(auth, email, password);
       setPassword("");
       setAuthMessage("Signed in.");
     } catch (error) {
-      setAuthMessage(error instanceof Error ? error.message : "Sign in failed.");
+      setAuthMessage(messageFromError(error, "Sign in failed."));
     }
   }
 
@@ -133,12 +178,17 @@ function App() {
       return;
     }
 
+    if (!email || !password) {
+      setAuthMessage("Enter email and password.");
+      return;
+    }
+
     try {
       await createUserWithEmailAndPassword(auth, email, password);
       setPassword("");
       setAuthMessage("Account created.");
     } catch (error) {
-      setAuthMessage(error instanceof Error ? error.message : "Account creation failed.");
+      setAuthMessage(messageFromError(error, "Account creation failed."));
     }
   }
 
@@ -147,11 +197,17 @@ function App() {
       return;
     }
 
+    await disconnectVoice();
     await signOut(auth);
     setAuthMessage("Signed out.");
   }
 
   async function uploadSelectedFile() {
+    if (!canUseProtectedApi) {
+      setAuthMessage(authGateMessage);
+      return;
+    }
+
     if (!selectedFile) {
       setAuthMessage("Select a file first.");
       return;
@@ -164,19 +220,24 @@ function App() {
       setTitle("");
       await refreshData();
     } catch (error) {
-      setAuthMessage(error instanceof Error ? error.message : "Upload failed.");
+      setAuthMessage(messageFromError(error, "Upload failed."));
     } finally {
       setLoading(false);
     }
   }
 
   async function ingestMaterial(materialId: string) {
+    if (!canUseProtectedApi) {
+      setAuthMessage(authGateMessage);
+      return;
+    }
+
     setLoading(true);
     try {
       await ingestStudyMaterial(materialId);
       await refreshData();
     } catch (error) {
-      setAuthMessage(error instanceof Error ? error.message : "Ingestion failed.");
+      setAuthMessage(messageFromError(error, "Ingestion failed."));
     } finally {
       setLoading(false);
     }
@@ -196,26 +257,44 @@ function App() {
   }
 
   async function connectVoice() {
-    if (socketIsOpen()) {
+    if (socketIsOpen() || voiceStatus === "connecting") {
+      return;
+    }
+
+    if (!canUseProtectedApi) {
+      appendVoiceLog(authGateMessage);
+      setAuthMessage(authGateMessage);
       return;
     }
 
     const token = await getCurrentIdToken();
+    if (requiresFirebaseAuth && !token) {
+      appendVoiceLog("Sign in before connecting.");
+      setAuthMessage("Sign in before connecting the voice session.");
+      return;
+    }
+
+    setVoiceStatus("connecting");
     const socket = new WebSocket(buildWebSocketUrl(token));
     socketRef.current = socket;
-    setVoiceStatus("connected");
 
     socket.addEventListener("open", () => {
+      setVoiceStatus("connected");
       appendVoiceLog("connected");
-      sendVoiceEvent("session.start");
+      socket.send(JSON.stringify({ type: "session.start", payload: {} }));
     });
 
     socket.addEventListener("message", (event) => {
-      handleServerEvent(JSON.parse(event.data) as ServerEvent);
+      try {
+        handleServerEvent(JSON.parse(event.data) as ServerEvent);
+      } catch {
+        appendVoiceLog("Received unreadable server event.");
+      }
     });
 
-    socket.addEventListener("close", () => {
-      appendVoiceLog("closed");
+    socket.addEventListener("close", (event) => {
+      appendVoiceLog(event.reason ? `closed: ${event.code} ${event.reason}` : "closed");
+      socketRef.current = null;
       setVoiceStatus("disconnected");
     });
 
@@ -292,6 +371,8 @@ function App() {
   }
 
   async function stopMic() {
+    const hadMic = Boolean(mediaStreamRef.current || audioContextRef.current);
+
     recorderNodeRef.current?.disconnect();
     micSourceRef.current?.disconnect();
     mediaStreamRef.current?.getTracks().forEach((track) => track.stop());
@@ -307,7 +388,9 @@ function App() {
     }
 
     setVoiceStatus(socketIsOpen() ? "connected" : "disconnected");
-    appendVoiceLog("microphone stopped");
+    if (hadMic) {
+      appendVoiceLog("microphone stopped");
+    }
   }
 
   async function disconnectVoice() {
@@ -316,6 +399,7 @@ function App() {
     }
 
     socketRef.current?.close();
+    socketRef.current = null;
   }
 
   async function handleServerEvent(event: ServerEvent) {
@@ -365,8 +449,29 @@ function App() {
     nextPlaybackTimeRef.current = startAt + audioBuffer.duration;
   }
 
+  const canUseProtectedApi =
+    authReady && (!requiresFirebaseAuth || (firebaseConfigured && Boolean(authUser)));
+  const authGateMessage = !firebaseConfigured
+    ? "Firebase auth mode needs frontend Firebase config."
+    : "Sign in to use the cloud backend.";
+  const showFirebaseControls = requiresFirebaseAuth && firebaseConfigured;
   const isConnected = voiceStatus === "connected" || voiceStatus === "recording";
+  const isConnecting = voiceStatus === "connecting";
   const isRecording = voiceStatus === "recording";
+  const canSubmitCredentials = Boolean(showFirebaseControls && auth && email && password && !loading);
+  const authStateLabel = (() => {
+    if (!requiresFirebaseAuth || !firebaseConfigured) {
+      return "dev fallback";
+    }
+
+    if (!authReady) {
+      return "checking";
+    }
+
+    return authUser ? "signed in" : "signed out";
+  })();
+  const authStatusClass = !requiresFirebaseAuth ? "dev" : authUser ? "signed-in" : "signed-out";
+  const protectedDisabled = loading || !canUseProtectedApi;
 
   return (
     <main className="app-shell">
@@ -375,18 +480,54 @@ function App() {
           <h1>AI Voice Coach</h1>
           <p>{profile || "Local study workspace"}</p>
         </div>
-        <button className="icon-button secondary" onClick={refreshData} disabled={loading}>
-          <RefreshCw size={17} />
-          Refresh
-        </button>
+        <div className="top-actions">
+          <span className={`status-pill ${authMode}`}>{authMode}</span>
+          <button className="icon-button secondary" onClick={() => refreshData()} disabled={loading}>
+            <RefreshCw size={17} />
+            Refresh
+          </button>
+        </div>
       </header>
 
       <section className="panel auth-panel">
         <div className="section-heading">
           <ShieldCheck size={19} />
           <h2>Auth</h2>
+          <span className={`status-pill ${authStatusClass}`}>{authStateLabel}</span>
         </div>
-        {firebaseConfigured ? (
+
+        <div className="config-grid">
+          <span>
+            <Cloud size={15} />
+            API {displayTarget(apiBaseUrl)}
+          </span>
+          <span>
+            <Plug size={15} />
+            WS {displayTarget(wsBaseUrl)}
+          </span>
+          <span>
+            {firebaseConfigured ? <CheckCircle2 size={15} /> : <Info size={15} />}
+            Firebase {firebaseConfigured ? "configured" : "not configured"}
+          </span>
+        </div>
+
+        {requiresFirebaseAuth && !canUseProtectedApi ? (
+          <div className="notice warning">
+            <AlertTriangle size={17} />
+            {authGateMessage}
+          </div>
+        ) : null}
+
+        {showFirebaseControls && authUser ? (
+          <div className="identity-line">
+            <strong>{authUser.email || "Firebase user"}</strong>
+            <span>{authUser.uid}</span>
+            <button className="icon-button secondary" onClick={signOutUser}>
+              <LogOut size={17} />
+              Sign Out
+            </button>
+          </div>
+        ) : showFirebaseControls ? (
           <div className="auth-grid">
             <input
               value={email}
@@ -394,6 +535,7 @@ function App() {
               type="email"
               placeholder="Email"
               autoComplete="email"
+              disabled={!authReady || loading}
             />
             <input
               value={password}
@@ -401,26 +543,23 @@ function App() {
               type="password"
               placeholder="Password"
               autoComplete="current-password"
+              disabled={!authReady || loading}
             />
-            <button className="icon-button" onClick={signIn}>
+            <button className="icon-button" onClick={signIn} disabled={!canSubmitCredentials}>
               <LogIn size={17} />
               Sign In
             </button>
-            <button className="icon-button secondary" onClick={createAccount}>
+            <button
+              className="icon-button secondary"
+              onClick={createAccount}
+              disabled={!canSubmitCredentials}
+            >
               <UserPlus size={17} />
               Create
             </button>
-            <button
-              className="icon-button secondary"
-              onClick={signOutUser}
-              disabled={!authUser}
-            >
-              <LogOut size={17} />
-              Sign Out
-            </button>
           </div>
         ) : (
-          <p className="muted">Firebase config missing. Dev auth mode can still use the backend.</p>
+          <p className="muted">Dev auth uses the backend fixed local user.</p>
         )}
         <div className="message-line">{authMessage || authUser?.email || "Ready"}</div>
       </section>
@@ -435,37 +574,54 @@ function App() {
             value={title}
             onChange={(event) => setTitle(event.target.value)}
             placeholder="Title"
+            disabled={protectedDisabled}
           />
           <input
             type="file"
-            accept=".pdf,text/plain"
+            accept=".pdf,.txt,text/plain,application/pdf"
             onChange={(event) => setSelectedFile(event.target.files?.[0] || null)}
+            disabled={protectedDisabled}
           />
-          <button className="icon-button" onClick={uploadSelectedFile} disabled={loading}>
+          <button
+            className="icon-button"
+            onClick={uploadSelectedFile}
+            disabled={protectedDisabled || !selectedFile}
+          >
             <UploadCloud size={17} />
             Upload
           </button>
         </div>
         <div className="material-list">
-          {materials.map((material) => (
-            <article className="material-item" key={material.id}>
-              <div>
-                <h3>{material.title}</h3>
-                <p>
-                  {material.source_type} · {material.ingestion_status}
-                </p>
-              </div>
-              <button
-                className="icon-button secondary"
-                onClick={() => ingestMaterial(material.id)}
-                disabled={loading || !material.storage_path}
-              >
-                <BookOpen size={17} />
-                Ingest
-              </button>
-              {material.summary ? <p className="summary">{material.summary}</p> : null}
-            </article>
-          ))}
+          {materials.length ? (
+            materials.map((material) => (
+              <article className="material-item" key={material.id}>
+                <div>
+                  <h3>{material.title}</h3>
+                  <p>
+                    {material.source_type} / {material.ingestion_status.replace("_", " ")}
+                  </p>
+                </div>
+                <button
+                  className="icon-button secondary"
+                  onClick={() => ingestMaterial(material.id)}
+                  disabled={protectedDisabled || !material.storage_path}
+                >
+                  <BookOpen size={17} />
+                  Ingest
+                </button>
+                {material.summary ? <p className="summary">{material.summary}</p> : null}
+                {material.key_concepts.length ? (
+                  <div className="concept-list">
+                    {material.key_concepts.map((concept) => (
+                      <span key={concept}>{concept}</span>
+                    ))}
+                  </div>
+                ) : null}
+              </article>
+            ))
+          ) : (
+            <p className="empty-state">No study materials yet.</p>
+          )}
         </div>
       </section>
 
@@ -475,9 +631,11 @@ function App() {
           <h2>Review Items</h2>
         </div>
         <div className="review-list">
-          {reviewItems.map((item) => (
-            <span key={item.id}>{item.concept}</span>
-          ))}
+          {reviewItems.length ? (
+            reviewItems.map((item) => <span key={item.id}>{item.concept}</span>)
+          ) : (
+            <p className="empty-state">No review items yet.</p>
+          )}
         </div>
       </section>
 
@@ -488,7 +646,11 @@ function App() {
           <span className={`status-pill ${voiceStatus}`}>{voiceStatus}</span>
         </div>
         <div className="controls">
-          <button className="icon-button" onClick={connectVoice} disabled={isConnected}>
+          <button
+            className="icon-button"
+            onClick={connectVoice}
+            disabled={protectedDisabled || isConnected || isConnecting}
+          >
             <Plug size={17} />
             Connect
           </button>

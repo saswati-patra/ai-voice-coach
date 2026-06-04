@@ -27,7 +27,34 @@ Copy the example environment file:
 cp .env.example .env
 ```
 
-For dev-auth backend mode, Firebase values can stay blank. For Firebase auth mode, populate the `VITE_FIREBASE_*` values from OpenTofu outputs after apply.
+For dev-auth backend mode, keep:
+
+```env
+VITE_AUTH_MODE=dev
+VITE_API_BASE_URL=
+VITE_WS_BASE_URL=
+```
+
+Firebase values can stay blank in dev mode. For Firebase auth mode, use:
+
+```env
+VITE_AUTH_MODE=firebase
+VITE_API_BASE_URL=
+VITE_WS_BASE_URL=
+```
+
+Then populate the `VITE_FIREBASE_*` values from OpenTofu outputs after apply:
+
+```bash
+tofu -chdir=../infra/tofu output -json firebase_frontend_env
+```
+
+Keep `VITE_API_BASE_URL` and `VITE_WS_BASE_URL` blank when running through Vite's local proxy or when the built frontend is served by FastAPI. Set them only when the frontend and backend are on different origins, such as a hosted frontend calling Cloud Run:
+
+```env
+VITE_API_BASE_URL=https://your-cloud-run-url
+VITE_WS_BASE_URL=wss://your-cloud-run-url
+```
 
 Run the backend on port 8000, then run Vite:
 
@@ -47,7 +74,7 @@ The backend serves `frontend/dist` when present. Docker builds the React app aut
 
 ## Firebase Auth
 
-The frontend sends `Authorization: Bearer <Firebase ID token>` to REST endpoints when a user is signed in. The voice WebSocket sends the same token as:
+When `VITE_AUTH_MODE=firebase`, the frontend requires a signed-in Firebase user before study material, review item, or voice session actions are enabled. It sends `Authorization: Bearer <Firebase ID token>` to REST endpoints and sends the same token to the voice WebSocket as:
 
 ```text
 /api/v1/ws/voice-session?id_token=<Firebase ID token>

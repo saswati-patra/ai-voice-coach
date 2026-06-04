@@ -50,7 +50,7 @@ Then check <http://localhost:8000/health>. If port `8000` is already in use, run
 
 The React app provides Firebase email/password auth, study material upload/ingestion controls, review items, and the microphone voice harness.
 
-In stub mode, the app works without Firebase config. For Firebase mode, fill `frontend/.env` with the Firebase Web App values from OpenTofu and set backend `AUTH_MODE=firebase`.
+In stub mode, the app works without Firebase config. For Firebase mode, set `VITE_AUTH_MODE=firebase`, fill `frontend/.env` with the Firebase Web App values from OpenTofu, and set backend `AUTH_MODE=firebase`.
 
 For Gemini mode, complete the ADC setup below and set `GOOGLE_CLOUD_ENABLED=true`. The browser sends 16 kHz mono PCM16 chunks as base64 JSON and plays returned 24 kHz PCM16 audio chunks.
 
@@ -105,7 +105,10 @@ gcloud auth login
 gcloud auth application-default login
 gcloud config set project "$PROJECT_ID"
 gcloud auth application-default set-quota-project "$PROJECT_ID"
-gcloud services enable serviceusage.googleapis.com --project "$PROJECT_ID"
+gcloud services enable \
+  serviceusage.googleapis.com \
+  cloudresourcemanager.googleapis.com \
+  --project "$PROJECT_ID"
 ```
 
 Create local variables:
@@ -146,6 +149,14 @@ GEMINI_DOCUMENT_MODEL=gemini-2.5-flash
 ```
 
 Use `tofu -chdir=infra/tofu output -json firebase_frontend_env` for the frontend Firebase values.
+
+For local Vite testing with Firebase auth:
+
+```env
+VITE_AUTH_MODE=firebase
+VITE_API_BASE_URL=
+VITE_WS_BASE_URL=
+```
 
 When `AUTH_MODE=firebase`, user-owned REST routes require `Authorization: Bearer <Firebase ID token>`. The voice WebSocket uses `/api/v1/ws/voice-session?id_token=<Firebase ID token>`.
 
