@@ -417,3 +417,79 @@ API_PORT=8001 docker compose up -d
 curl http://localhost:8001/health
 docker compose down
 ```
+
+## 18. End-Of-Day Shutdown
+
+Use these steps when you are done learning for the day.
+
+### Stop Local Servers
+
+If you started FastAPI or Vite in terminal windows, press `Ctrl+C` in each
+terminal:
+
+- FastAPI backend: `uv run uvicorn ...`
+- React frontend: `npm run dev`
+
+If you lost the terminal window, find the local listeners and stop the matching
+process IDs:
+
+```bash
+lsof -nP -iTCP:8000 -sTCP:LISTEN
+lsof -nP -iTCP:5173 -sTCP:LISTEN
+kill <PID>
+```
+
+### Stop Docker Compose
+
+From the repo root:
+
+```bash
+docker compose down
+```
+
+If you used an alternate port, the same command still stops the stack:
+
+```bash
+API_PORT=8001 docker compose down
+```
+
+### Leave Cloud In Low-Cost Mode
+
+Cloud Run has no always-on server when minimum instances is `0`; it scales down
+when idle. Keep it capped for learning:
+
+```bash
+export PROJECT_ID="ai-voice-coach-dev-saswati"
+export REGION="us-central1"
+export CLOUD_RUN_SERVICE="$(tofu -chdir=infra/tofu output -raw cloud_run_service_name)"
+
+gcloud run services update "$CLOUD_RUN_SERVICE" \
+  --project "$PROJECT_ID" \
+  --region "$REGION" \
+  --min-instances=0 \
+  --max-instances=1
+```
+
+Firebase Hosting is static hosting, so there is no running server to stop.
+Firestore and Cloud Storage are data services; do not delete them for a normal
+end-of-day shutdown.
+
+### Optional: Take The Cloud Backend Offline
+
+Only do this if you want the hosted API unavailable until the next deploy. The
+next GitHub Actions deployment recreates the Cloud Run service.
+
+```bash
+gcloud run services delete "$CLOUD_RUN_SERVICE" \
+  --project "$PROJECT_ID" \
+  --region "$REGION"
+```
+
+### Optional: Cancel A Running Deployment
+
+If a GitHub Actions deployment is still running:
+
+```bash
+gh run list --workflow deploy.yml --limit 5
+gh run cancel <run-id>
+```
