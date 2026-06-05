@@ -8,6 +8,7 @@ Google Cloud-only AI voice study coach learning project.
 backend/          FastAPI backend, Python package, tests, Dockerfile
 frontend/         React/Vite frontend with Firebase Auth and voice harness
 infra/tofu/       OpenTofu for Google Cloud foundation resources
+.github/          GitHub Actions cloud deployment workflow
 ```
 
 The app runs locally in stub mode by default. Real Google Cloud calls stay disabled until `GOOGLE_CLOUD_ENABLED=true`.
@@ -127,7 +128,15 @@ tofu -chdir=infra/tofu plan
 tofu -chdir=infra/tofu apply
 ```
 
-OpenTofu manages the dev cloud foundation: APIs, Firebase Auth foundation, Firestore, Cloud Storage, Artifact Registry, a backend service account, and baseline IAM.
+OpenTofu manages the dev cloud foundation: APIs, Firebase Auth foundation, Firebase Hosting, Firestore, Cloud Storage, Artifact Registry, backend and GitHub Actions service accounts, Workload Identity Federation, and baseline IAM.
+
+GitHub Actions deploys the app after OpenTofu provisions Workload Identity Federation and the deployer service account:
+
+```bash
+tofu -chdir=infra/tofu apply
+scripts/sync-github-actions-vars.sh
+gh workflow run deploy.yml
+```
 
 After apply, configure the backend and frontend with the OpenTofu outputs:
 

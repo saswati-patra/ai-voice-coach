@@ -33,6 +33,36 @@ variable "backend_service_account_id" {
   default     = null
 }
 
+variable "cloud_run_service_name" {
+  description = "Cloud Run service name for the backend. Defaults to ai-voice-coach-<environment>."
+  type        = string
+  default     = null
+}
+
+variable "github_repository" {
+  description = "GitHub repository allowed to deploy through Workload Identity Federation, in OWNER/REPO format."
+  type        = string
+  default     = "saswati-patra/ai-voice-coach"
+}
+
+variable "github_actions_service_account_id" {
+  description = "Service account ID used by GitHub Actions deployments. Must be 30 characters or fewer. Defaults to ai-voice-coach-gh-<environment>."
+  type        = string
+  default     = null
+}
+
+variable "github_workload_identity_pool_id" {
+  description = "Workload Identity Pool ID for GitHub Actions. Must be globally unique within the project."
+  type        = string
+  default     = null
+}
+
+variable "firebase_hosting_site_id" {
+  description = "Firebase Hosting site ID. Defaults to the Google Cloud project ID."
+  type        = string
+  default     = null
+}
+
 variable "force_destroy_buckets" {
   description = "Whether OpenTofu can delete non-empty buckets. Keep false for normal environments."
   type        = bool

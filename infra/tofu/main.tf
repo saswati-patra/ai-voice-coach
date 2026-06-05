@@ -28,9 +28,14 @@ provider "google-beta" {
 }
 
 locals {
-  artifact_repository_id     = coalesce(var.artifact_repository_id, "ai-voice-coach-${var.environment}")
-  backend_service_account_id = coalesce(var.backend_service_account_id, "ai-voice-coach-${var.environment}")
-  study_materials_bucket     = coalesce(var.study_materials_bucket_name, "${var.project_id}-${var.environment}-study-materials")
+  artifact_repository_id               = coalesce(var.artifact_repository_id, "ai-voice-coach-${var.environment}")
+  backend_service_account_id           = coalesce(var.backend_service_account_id, "ai-voice-coach-${var.environment}")
+  cloud_run_service_name               = coalesce(var.cloud_run_service_name, "ai-voice-coach-${var.environment}")
+  github_actions_service_account_id    = coalesce(var.github_actions_service_account_id, "ai-voice-coach-gh-${var.environment}")
+  github_workload_identity_pool_id     = coalesce(var.github_workload_identity_pool_id, "github-actions-${var.environment}")
+  github_workload_identity_provider_id = "github"
+  firebase_hosting_site_id             = coalesce(var.firebase_hosting_site_id, var.project_id)
+  study_materials_bucket               = coalesce(var.study_materials_bucket_name, "${var.project_id}-${var.environment}-study-materials")
 
   required_apis = toset([
     "aiplatform.googleapis.com",
@@ -38,6 +43,7 @@ locals {
     "cloudbuild.googleapis.com",
     "cloudresourcemanager.googleapis.com",
     "firebase.googleapis.com",
+    "firebasehosting.googleapis.com",
     "firestore.googleapis.com",
     "iam.googleapis.com",
     "identitytoolkit.googleapis.com",
@@ -65,6 +71,73 @@ resource "google_service_account" "backend" {
   depends_on = [
     google_project_service.apis["iam.googleapis.com"],
   ]
+}
+
+resource "google_service_account" "github_actions_deployer" {
+  project      = var.project_id
+  account_id   = local.github_actions_service_account_id
+  display_name = "AI Voice Coach GitHub Actions Deployer (${var.environment})"
+
+  depends_on = [
+    google_project_service.apis["iam.googleapis.com"],
+  ]
+}
+
+resource "google_iam_workload_identity_pool" "github_actions" {
+  project                   = var.project_id
+  workload_identity_pool_id = local.github_workload_identity_pool_id
+  display_name              = "GitHub Actions ${var.environment}"
+  description               = "GitHub Actions OIDC pool for ${var.github_repository}."
+
+  depends_on = [
+    google_project_service.apis["iam.googleapis.com"],
+  ]
+}
+
+resource "google_iam_workload_identity_pool_provider" "github_actions" {
+  project                            = var.project_id
+  workload_identity_pool_id          = google_iam_workload_identity_pool.github_actions.workload_identity_pool_id
+  workload_identity_pool_provider_id = local.github_workload_identity_provider_id
+  display_name                       = "GitHub Actions"
+  description                        = "Trusts GitHub Actions tokens for ${var.github_repository}."
+
+  attribute_mapping = {
+    "google.subject"       = "assertion.sub"
+    "attribute.actor"      = "assertion.actor"
+    "attribute.ref"        = "assertion.ref"
+    "attribute.repository" = "assertion.repository"
+  }
+
+  attribute_condition = "assertion.repository == \"${var.github_repository}\""
+
+  oidc {
+    issuer_uri = "https://token.actions.githubusercontent.com"
+  }
+}
+
+resource "google_service_account_iam_member" "github_actions_workload_identity_user" {
+  service_account_id = google_service_account.github_actions_deployer.name
+  role               = "roles/iam.workloadIdentityUser"
+  member             = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.github_actions.name}/attribute.repository/${var.github_repository}"
+}
+
+resource "google_service_account_iam_member" "github_actions_can_use_backend_runtime" {
+  service_account_id = google_service_account.backend.name
+  role               = "roles/iam.serviceAccountUser"
+  member             = "serviceAccount:${google_service_account.github_actions_deployer.email}"
+}
+
+resource "google_project_iam_member" "github_actions_deployer_roles" {
+  for_each = toset([
+    "roles/artifactregistry.writer",
+    "roles/firebasehosting.admin",
+    "roles/run.admin",
+    "roles/serviceusage.apiKeysViewer",
+  ])
+
+  project = var.project_id
+  role    = each.key
+  member  = "serviceAccount:${google_service_account.github_actions_deployer.email}"
 }
 
 resource "google_project_iam_member" "backend_vertex_ai_user" {
@@ -137,6 +210,11 @@ resource "google_identity_platform_config" "default" {
       enabled           = true
       password_required = true
     }
+
+    phone_number {
+      enabled            = false
+      test_phone_numbers = {}
+    }
   }
 
   depends_on = [
@@ -158,6 +236,17 @@ data "google_firebase_web_app_config" "frontend" {
   provider   = google-beta
   project    = google_firebase_web_app.frontend.project
   web_app_id = google_firebase_web_app.frontend.app_id
+}
+
+resource "google_firebase_hosting_site" "frontend" {
+  provider = google-beta
+  project  = google_firebase_project.default.project
+  site_id  = local.firebase_hosting_site_id
+  app_id   = google_firebase_web_app.frontend.app_id
+
+  depends_on = [
+    google_project_service.apis["firebasehosting.googleapis.com"],
+  ]
 }
 
 resource "google_storage_bucket" "study_materials" {

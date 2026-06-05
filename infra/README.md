@@ -12,7 +12,7 @@ tofu/
   terraform.tfvars.example
 ```
 
-The current OpenTofu configuration provisions the dev cloud foundation: required APIs, Firebase Auth foundation, Firebase Web App config, Firestore, Cloud Storage, Artifact Registry, a backend service account, and baseline IAM.
+The current OpenTofu configuration provisions the dev cloud foundation: required APIs, Firebase Auth foundation, Firebase Web App config, Firebase Hosting, Firestore, Cloud Storage, Artifact Registry, backend and GitHub Actions service accounts, Workload Identity Federation, and baseline IAM.
 
 ## Prerequisites
 
@@ -30,7 +30,7 @@ tofu version
 
 ## Bootstrap
 
-OpenTofu can manage the cloud resources, but it needs authentication and the Service Usage API before the first apply:
+OpenTofu can manage the cloud resources, but it needs authentication plus Service Usage and Cloud Resource Manager before the first apply:
 
 ```bash
 export PROJECT_ID="your-google-cloud-project-id"
@@ -38,7 +38,10 @@ gcloud auth login
 gcloud auth application-default login
 gcloud config set project "$PROJECT_ID"
 gcloud auth application-default set-quota-project "$PROJECT_ID"
-gcloud services enable serviceusage.googleapis.com --project "$PROJECT_ID"
+gcloud services enable \
+  serviceusage.googleapis.com \
+  cloudresourcemanager.googleapis.com \
+  --project "$PROJECT_ID"
 ```
 
 If the project is new, create it and link billing before this step.
@@ -68,11 +71,18 @@ tofu -chdir=infra/tofu output
 tofu -chdir=infra/tofu output -raw study_materials_bucket_name
 tofu -chdir=infra/tofu output -raw firebase_project_id
 tofu -chdir=infra/tofu output -json firebase_frontend_env
+tofu -chdir=infra/tofu output -json github_actions_variables
 tofu -chdir=infra/tofu output -raw backend_service_account_email
 ```
 
 Use `study_materials_bucket_name` in `backend/.env` as `GOOGLE_CLOUD_STORAGE_BUCKET`.
 Use `firebase_frontend_env` for `frontend/.env`.
+
+Use `github_actions_variables` to populate GitHub repository variables for the deployment workflow:
+
+```bash
+scripts/sync-github-actions-vars.sh
+```
 
 ## State And Secrets
 
@@ -87,6 +97,5 @@ Track provider locks and example files such as `.terraform.lock.hcl` and `terraf
 
 ## Planned Google Cloud Resources
 
-- Cloud Run deployment
 - Secret Manager secrets and secret versions
 - Remote state storage

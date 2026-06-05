@@ -107,10 +107,12 @@ OpenTofu manages:
 - Required Google Cloud APIs
 - Firebase Auth foundation
 - Firebase Web App config
+- Firebase Hosting site
 - Firestore `(default)` database
 - Study materials Cloud Storage bucket
 - Artifact Registry Docker repository
 - Backend service account
+- GitHub Actions Workload Identity Federation and deployer service account
 - Baseline IAM for Vertex AI, Firestore, Storage, Logging, and Secret Manager
 
 If Firestore already exists in the project, import it before applying:
@@ -130,9 +132,43 @@ tofu -chdir=infra/tofu output -raw firebase_project_id
 tofu -chdir=infra/tofu output -json firebase_frontend_env
 tofu -chdir=infra/tofu output -raw backend_service_account_email
 tofu -chdir=infra/tofu output -raw artifact_registry_repository_id
+tofu -chdir=infra/tofu output -json github_actions_variables
 ```
 
-## 8. Configure Backend Environment
+## 8. Configure GitHub Actions Deployment
+
+The repository deploys through GitHub Actions using Google Cloud Workload
+Identity Federation. No service account JSON key is needed.
+
+After `tofu apply`, sync OpenTofu outputs into GitHub repository variables:
+
+```bash
+scripts/sync-github-actions-vars.sh
+```
+
+You can inspect the synced variables with:
+
+```bash
+gh variable list
+```
+
+The deployment workflow is `.github/workflows/deploy.yml`. It runs on pushes to
+`main` and can also be started manually:
+
+```bash
+gh workflow run deploy.yml
+gh run watch
+```
+
+The workflow:
+
+- Runs backend tests and a frontend build check.
+- Builds and pushes the backend image to Artifact Registry.
+- Deploys the backend to Cloud Run with Firebase auth and Google Cloud mode on.
+- Uses the Cloud Run URL to build the hosted React frontend.
+- Deploys `frontend/dist` to Firebase Hosting.
+
+## 9. Configure Backend Environment
 
 ```bash
 cp backend/.env.example backend/.env
@@ -160,7 +196,7 @@ GEMINI_SYSTEM_INSTRUCTION=You are an AI voice study coach. Ask concise questions
 
 Do not commit `backend/.env`.
 
-## 9. Configure Frontend Environment
+## 10. Configure Frontend Environment
 
 ```bash
 cd frontend
@@ -198,7 +234,7 @@ npm install
 npm run build
 ```
 
-## 10. Verify Backend Locally
+## 11. Verify Backend Locally
 
 ```bash
 cd backend
@@ -241,7 +277,7 @@ live model: gemini-live-2.5-flash-native-audio
 document model: gemini-2.5-flash
 ```
 
-## 11. Run Backend
+## 12. Run Backend
 
 ```bash
 uv run uvicorn ai_voice_coach.main:app --reload --app-dir src
@@ -259,7 +295,7 @@ Expected:
 {"status":"ok","app_name":"AI Voice Coach","app_env":"local","adapter_mode":"google-cloud"}
 ```
 
-## 12. Run React Frontend
+## 13. Run React Frontend
 
 In another terminal:
 
@@ -280,7 +316,7 @@ The frontend shows the active auth mode, API target, WebSocket target, and
 Firebase config status. In Firebase mode, upload, ingest, refresh, and voice
 session actions are disabled until a Firebase user is signed in.
 
-## 13. Study Material Upload And Ingestion Smoke Test
+## 14. Study Material Upload And Ingestion Smoke Test
 
 Keep the backend running, then in another terminal:
 
@@ -315,7 +351,7 @@ To test backend Firebase mode later, set `AUTH_MODE=firebase` and send
 `Authorization: Bearer <Firebase ID token>` on REST requests. The voice WebSocket uses
 `/api/v1/ws/voice-session?id_token=<Firebase ID token>`.
 
-## 14. Browser Voice Check
+## 15. Browser Voice Check
 
 Open:
 
@@ -330,7 +366,7 @@ Then:
 - Speak a short phrase
 - Watch the log and listen for a response
 
-## 15. WebSocket Text Smoke Test
+## 16. WebSocket Text Smoke Test
 
 Keep the backend running, then in another terminal:
 
@@ -363,7 +399,7 @@ asyncio.run(main())
 PY
 ```
 
-## 16. Docker Stub-Mode Check
+## 17. Docker Stub-Mode Check
 
 Docker Compose still defaults to stub mode:
 
