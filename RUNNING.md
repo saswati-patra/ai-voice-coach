@@ -470,6 +470,13 @@ gcloud run services update "$CLOUD_RUN_SERVICE" \
   --max-instances=1
 ```
 
+Or run the manual GitHub Actions shutdown workflow:
+
+```bash
+gh workflow run shutdown.yml -f action=scale-to-zero
+gh run watch
+```
+
 Firebase Hosting is static hosting, so there is no running server to stop.
 Firestore and Cloud Storage are data services; do not delete them for a normal
 end-of-day shutdown.
@@ -483,6 +490,13 @@ next GitHub Actions deployment recreates the Cloud Run service.
 gcloud run services delete "$CLOUD_RUN_SERVICE" \
   --project "$PROJECT_ID" \
   --region "$REGION"
+```
+
+The same optional offline action is available through GitHub Actions:
+
+```bash
+gh workflow run shutdown.yml -f action=delete-backend
+gh run watch
 ```
 
 ### Optional: Cancel A Running Deployment

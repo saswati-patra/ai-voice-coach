@@ -1,0 +1,111 @@
+name: End Of Day Shutdown
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "Cloud shutdown action"
+        type: choice
+        required: true
+        default: scale-to-zero
+        options:
+          - scale-to-zero
+          - delete-backend
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: shutdown-cloud
+  cancel-in-progress: false
+
+jobs:
+  shutdown:
+    name: Shutdown Cloud Learning Resources
+    runs-on: ubuntu-latest
+
+    env:
+      CLOUD_RUN_SERVICE: ${{ vars.CLOUD_RUN_SERVICE }}
+      GCP_DEPLOYER_SERVICE_ACCOUNT: ${{ vars.GCP_DEPLOYER_SERVICE_ACCOUNT }}
+      GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+      GCP_REGION: ${{ vars.GCP_REGION }}
+      GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+      SHUTDOWN_ACTION: ${{ inputs.action }}
+
+    steps:
+      - name: Check required repository variables
+        run: |
+          required=(
+            CLOUD_RUN_SERVICE
+            GCP_DEPLOYER_SERVICE_ACCOUNT
+            GCP_PROJECT_ID
+            GCP_REGION
+            GCP_WORKLOAD_IDENTITY_PROVIDER
+          )
+
+          missing=()
+          for name in "${required[@]}"; do
+            if [[ -z "${!name}" ]]; then
+              missing+=("$name")
+            fi
+          done
+
+          if (( ${#missing[@]} > 0 )); then
+            printf 'Missing GitHub repository variables:\n'
+            printf ' - %s\n' "${missing[@]}"
+            exit 1
+          fi
+
+      - name: Authenticate To Google Cloud
+        uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ env.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ env.GCP_DEPLOYER_SERVICE_ACCOUNT }}
+
+      - name: Set Up gcloud
+        uses: google-github-actions/setup-gcloud@v3
+        with:
+          project_id: ${{ env.GCP_PROJECT_ID }}
+
+      - name: Check Cloud Run Service
+        id: service
+        run: |
+          if gcloud run services describe "${CLOUD_RUN_SERVICE}" \
+            --project "${GCP_PROJECT_ID}" \
+            --region "${GCP_REGION}" \
+            --format="value(metadata.name)" >/tmp/cloud-run-service 2>/tmp/cloud-run-describe.err; then
+            echo "exists=true" >>"${GITHUB_OUTPUT}"
+          else
+            echo "exists=false" >>"${GITHUB_OUTPUT}"
+            cat /tmp/cloud-run-describe.err
+          fi
+
+      - name: Scale Cloud Run To Zero
+        if: ${{ inputs.action == 'scale-to-zero' && steps.service.outputs.exists == 'true' }}
+        run: |
+          gcloud run services update "${CLOUD_RUN_SERVICE}" \
+            --project "${GCP_PROJECT_ID}" \
+            --region "${GCP_REGION}" \
+            --min-instances=0 \
+            --max-instances=1
+
+      - name: Delete Cloud Run Backend
+        if: ${{ inputs.action == 'delete-backend' && steps.service.outputs.exists == 'true' }}
+        run: |
+          gcloud run services delete "${CLOUD_RUN_SERVICE}" \
+            --project "${GCP_PROJECT_ID}" \
+            --region "${GCP_REGION}" \
+            --quiet
+
+      - name: Summary
+        run: |
+          {
+            echo "### End-of-day shutdown"
+            echo
+            echo "- Action: ${SHUTDOWN_ACTION}"
+            echo "- Cloud Run service: ${CLOUD_RUN_SERVICE}"
+            echo "- Service existed: ${{ steps.service.outputs.exists }}"
+            echo
+            echo "Firebase Hosting, Firestore, and Cloud Storage were not deleted."
+          } >>"${GITHUB_STEP_SUMMARY}"
