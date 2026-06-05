@@ -152,8 +152,8 @@ You can inspect the synced variables with:
 gh variable list
 ```
 
-The deployment workflow is `.github/workflows/deploy.yml`. It runs on pushes to
-`main` and can also be started manually:
+The deployment workflow is `.github/workflows/deploy.yml`. It is manual-only so
+you can push learning checkpoints without deploying:
 
 ```bash
 gh workflow run deploy.yml
