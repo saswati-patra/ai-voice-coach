@@ -8,7 +8,7 @@ if [[ -z "$repo" ]]; then
 fi
 
 tofu -chdir=infra/tofu output -json github_actions_variables \
-  | jq -r 'to_entries[] | @tsv' \
+  | jq -r 'to_entries[] | [.key, (.value | tostring)] | @tsv' \
   | while IFS=$'\t' read -r name value; do
       gh variable set "$name" --repo "$repo" --body "$value"
     done
