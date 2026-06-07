@@ -148,6 +148,12 @@ def test_firebase_project_id_falls_back_to_google_cloud_project() -> None:
     assert settings.resolved_firebase_project_id == "test-project"
 
 
+def test_firebase_allowed_sign_in_provider_defaults_to_google() -> None:
+    settings = Settings()
+
+    assert settings.firebase_allowed_sign_in_provider == "google.com"
+
+
 def test_gemini_document_model_defaults_to_flash() -> None:
     settings = Settings()
 

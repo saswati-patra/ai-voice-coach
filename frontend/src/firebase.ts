@@ -1,10 +1,10 @@
 import { initializeApp, type FirebaseApp } from "firebase/app";
 import {
-  createUserWithEmailAndPassword,
+  GoogleAuthProvider,
   getAuth,
   getIdToken,
   onAuthStateChanged,
-  signInWithEmailAndPassword,
+  signInWithPopup,
   signOut,
   type User,
 } from "firebase/auth";
@@ -31,6 +31,11 @@ export const firebaseApp: FirebaseApp | null = firebaseConfigured
 
 export const auth = firebaseApp ? getAuth(firebaseApp) : null;
 
+const googleProvider = new GoogleAuthProvider();
+googleProvider.setCustomParameters({
+  prompt: "select_account",
+});
+
 export async function getCurrentIdToken(): Promise<string | null> {
   if (!auth?.currentUser) {
     return null;
@@ -39,10 +44,12 @@ export async function getCurrentIdToken(): Promise<string | null> {
   return getIdToken(auth.currentUser);
 }
 
-export {
-  createUserWithEmailAndPassword,
-  onAuthStateChanged,
-  signInWithEmailAndPassword,
-  signOut,
-  type User,
-};
+export async function signInWithGoogleAccount() {
+  if (!auth) {
+    throw new Error("Sign-in settings are missing.");
+  }
+
+  return signInWithPopup(auth, googleProvider);
+}
+
+export { onAuthStateChanged, signOut, type User };

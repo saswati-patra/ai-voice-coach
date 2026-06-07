@@ -1,20 +1,19 @@
 import { Navigate } from "react-router-dom";
-import { AlertTriangle, Cloud, Info, LogIn, ShieldCheck, UserPlus } from "lucide-react";
+import { AlertTriangle, Cloud, Info, LogIn, ShieldCheck } from "lucide-react";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import type { VoiceCoachWorkspace } from "@/hooks/use-voice-coach-workspace";
-import { loginRedirectPath } from "@/lib/auth-flow";
+import { loginProviderCopy, loginRedirectPath } from "@/lib/auth-flow";
 
 type LoginPageProps = {
   workspace: VoiceCoachWorkspace;
 };
 
 export function LoginPage({ workspace }: LoginPageProps) {
-  const { auth, loading } = workspace;
+  const { auth } = workspace;
   const redirectTo = loginRedirectPath({
     requiresFirebaseAuth: auth.requiresFirebaseAuth,
     signedIn: Boolean(auth.authUser),
@@ -23,6 +22,8 @@ export function LoginPage({ workspace }: LoginPageProps) {
   if (redirectTo) {
     return <Navigate to={redirectTo} replace />;
   }
+
+  const providerCopy = loginProviderCopy();
 
   return (
     <div className="mx-auto grid min-h-[calc(100vh-12rem)] w-full max-w-5xl items-center gap-6 lg:grid-cols-[0.9fr_1.1fr]">
@@ -58,8 +59,8 @@ export function LoginPage({ workspace }: LoginPageProps) {
 
       <Card>
         <CardHeader>
-          <CardTitle>Login</CardTitle>
-          <p className="text-sm text-muted-foreground">Create an account or sign in with email and password.</p>
+          <CardTitle>{providerCopy.title}</CardTitle>
+          <p className="text-sm text-muted-foreground">{providerCopy.description}</p>
         </CardHeader>
         <CardContent className="space-y-4">
           {!auth.firebaseConfigured ? (
@@ -73,32 +74,9 @@ export function LoginPage({ workspace }: LoginPageProps) {
           ) : null}
 
           <div className="grid gap-3">
-            <Input
-              value={auth.email}
-              onChange={(event) => auth.setEmail(event.target.value)}
-              type="email"
-              placeholder="Email"
-              autoComplete="email"
-              disabled={!auth.authReady || loading || !auth.firebaseConfigured}
-            />
-            <Input
-              value={auth.password}
-              onChange={(event) => auth.setPassword(event.target.value)}
-              type="password"
-              placeholder="Password"
-              autoComplete="current-password"
-              disabled={!auth.authReady || loading || !auth.firebaseConfigured}
-            />
-          </div>
-
-          <div className="grid gap-3 sm:grid-cols-2">
-            <Button onClick={auth.signIn} disabled={!auth.canSubmitCredentials}>
+            <Button onClick={auth.signIn} disabled={!auth.canSignIn} className="w-full">
               <LogIn className="size-4" />
-              Sign In
-            </Button>
-            <Button variant="outline" onClick={auth.createAccount} disabled={!auth.canSubmitCredentials}>
-              <UserPlus className="size-4" />
-              Create Account
+              {providerCopy.actionLabel}
             </Button>
           </div>
 

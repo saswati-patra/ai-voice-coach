@@ -82,12 +82,32 @@ gcloud services enable \
 cp infra/tofu/terraform.tfvars.example infra/tofu/terraform.tfvars
 ```
 
+Create a Google OAuth web client for Identity Platform Google sign-in. Use the
+same Google Cloud project. Add these authorized JavaScript origins:
+
+```text
+http://localhost:5173
+https://PROJECT_ID.firebaseapp.com
+https://PROJECT_ID.web.app
+```
+
+Add this authorized redirect URI:
+
+```text
+https://PROJECT_ID.firebaseapp.com/__/auth/handler
+```
+
+If you set `firebase_hosting_site_id` to a value different from `PROJECT_ID`,
+also add that hosting domain as an authorized origin.
+
 Edit `infra/tofu/terraform.tfvars`:
 
 ```hcl
 project_id  = "your-google-cloud-project-id"
 region      = "us-central1"
 environment = "dev"
+google_oauth_client_id     = "your-google-oauth-client-id.apps.googleusercontent.com"
+google_oauth_client_secret = "your-google-oauth-client-secret"
 ```
 
 Do not commit `infra/tofu/terraform.tfvars`.
@@ -105,7 +125,7 @@ tofu -chdir=infra/tofu apply
 OpenTofu manages:
 
 - Required Google Cloud APIs
-- Firebase Auth foundation
+- Firebase Auth foundation with Google account sign-in
 - Firebase Web App config
 - Firebase Hosting site
 - Firestore `(default)` database
@@ -187,6 +207,7 @@ GOOGLE_CLOUD_LOCATION=us-central1
 GOOGLE_CLOUD_STORAGE_BUCKET=<value from tofu output study_materials_bucket_name>
 FIREBASE_PROJECT_ID=<value from tofu output firebase_project_id>
 FIREBASE_CHECK_REVOKED=false
+FIREBASE_ALLOWED_SIGN_IN_PROVIDER=google.com
 FIRESTORE_DATABASE=(default)
 GEMINI_LIVE_MODEL=gemini-live-2.5-flash-native-audio
 GEMINI_DOCUMENT_MODEL=gemini-2.5-flash
@@ -313,8 +334,8 @@ http://localhost:5173
 Vite proxies `/api` and `/health` to the backend on port 8000.
 
 The frontend shows the active auth mode, API target, WebSocket target, and
-Firebase config status. In Firebase mode, upload, ingest, refresh, and voice
-session actions are disabled until a Firebase user is signed in.
+sign-in config status. In Firebase mode, upload, ingest, refresh, and voice
+session actions are disabled until a user signs in with a Google account.
 
 ## 14. Study Material Upload And Ingestion Smoke Test
 

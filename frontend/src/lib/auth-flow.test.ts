@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  loginProviderCopy,
   loginRedirectPath,
   protectedRouteRedirectPath,
   shouldShowWorkspaceNavigation,
@@ -64,5 +65,13 @@ describe("auth flow", () => {
         signedIn: true,
       })
     ).toBe("Local Dev User (dev-user)");
+  });
+
+  it("uses Google account login copy", () => {
+    expect(loginProviderCopy()).toEqual({
+      actionLabel: "Continue with Google",
+      description: "Use your Google account to continue.",
+      title: "Login",
+    });
   });
 });

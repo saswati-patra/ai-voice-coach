@@ -6,7 +6,7 @@ Google Cloud-only AI voice study coach learning project.
 
 ```text
 backend/          FastAPI backend, Python package, tests, Dockerfile
-frontend/         React/Vite multi-page frontend with Firebase Auth and voice harness
+frontend/         React/Vite multi-page frontend with Firebase Auth Google sign-in and voice harness
 infra/tofu/       OpenTofu for Google Cloud foundation resources
 .github/          GitHub Actions cloud deployment workflow
 ```
@@ -51,7 +51,7 @@ Then check <http://localhost:8000/health>. If port `8000` is already in use, run
 
 The React app provides Dashboard, Study, Review, Voice, and Cloud pages built with Tailwind CSS, local shadcn-style UI primitives, and Base UI tabs.
 
-It includes Firebase email/password auth, study material upload/ingestion controls, review items, and the microphone voice harness.
+It includes Google account sign-in through Firebase Auth, study material upload/ingestion controls, review items, and the microphone voice harness.
 
 In stub mode, the app works without Firebase config. For Firebase mode, set `VITE_AUTH_MODE=firebase`, fill `frontend/.env` with the Firebase Web App values from OpenTofu, and set backend `AUTH_MODE=firebase`.
 
@@ -69,6 +69,7 @@ Key settings:
 - `GOOGLE_CLOUD_PROJECT`: future Google Cloud project ID
 - `GOOGLE_CLOUD_LOCATION`: future Vertex AI location, default `us-central1`
 - `FIREBASE_PROJECT_ID`: Firebase project for token verification, defaults to `GOOGLE_CLOUD_PROJECT`
+- `FIREBASE_ALLOWED_SIGN_IN_PROVIDER`: default `google.com`; rejects non-Google Firebase sign-in providers
 - `GEMINI_LIVE_MODEL`: Gemini Live model name used when Google Cloud mode is enabled
 - `GEMINI_RESPONSE_MODALITIES`: response modality for Gemini Live, default `audio`
 
@@ -120,7 +121,8 @@ Create local variables:
 cp infra/tofu/terraform.tfvars.example infra/tofu/terraform.tfvars
 ```
 
-Set `project_id` in `infra/tofu/terraform.tfvars`, then run:
+Set `project_id`, `google_oauth_client_id`, and `google_oauth_client_secret` in
+`infra/tofu/terraform.tfvars`, then run:
 
 ```bash
 tofu -chdir=infra/tofu init

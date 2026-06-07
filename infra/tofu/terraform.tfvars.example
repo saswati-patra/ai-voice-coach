@@ -2,11 +2,15 @@ project_id  = "your-google-cloud-project-id"
 region      = "us-central1"
 environment = "dev"
 
+google_oauth_client_id     = "your-google-oauth-client-id.apps.googleusercontent.com"
+google_oauth_client_secret = "your-google-oauth-client-secret"
+
 # Optional overrides. Leave unset to use defaults.
 # study_materials_bucket_name = "your-project-id-dev-study-materials"
 # artifact_repository_id     = "ai-voice-coach-dev"
 # backend_service_account_id = "ai-voice-coach-dev"
 # cloud_run_service_name     = "ai-voice-coach-dev"
 # firebase_hosting_site_id   = "your-google-cloud-project-id"
+# identity_platform_extra_authorized_domains = ["app.example.com"]
 # github_repository          = "saswati-patra/ai-voice-coach"
 # force_destroy_buckets      = false

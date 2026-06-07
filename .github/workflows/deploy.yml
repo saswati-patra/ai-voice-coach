@@ -159,6 +159,7 @@ jobs:
             GOOGLE_CLOUD_STORAGE_BUCKET=${{ env.GOOGLE_CLOUD_STORAGE_BUCKET }}
             FIREBASE_PROJECT_ID=${{ env.FIREBASE_PROJECT_ID }}
             FIREBASE_CHECK_REVOKED=false
+            FIREBASE_ALLOWED_SIGN_IN_PROVIDER=google.com
             FIRESTORE_DATABASE=(default)
             GEMINI_LIVE_MODEL=gemini-live-2.5-flash-native-audio
             GEMINI_DOCUMENT_MODEL=gemini-2.5-flash

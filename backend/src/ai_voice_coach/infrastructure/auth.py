@@ -51,8 +51,25 @@ class FirebaseAuthVerifier(AuthVerifier):
         if not uid:
             raise AuthTokenInvalidError("Firebase ID token is missing a uid.")
 
+        self._validate_sign_in_provider(decoded_token)
+
         display_name = decoded_token.get("name") or decoded_token.get("email") or uid
         return User(id=str(uid), display_name=str(display_name))
+
+    def _validate_sign_in_provider(self, decoded_token: Mapping[str, Any]) -> None:
+        allowed_provider = self._settings.firebase_allowed_sign_in_provider
+        if not allowed_provider:
+            return
+
+        firebase_claims = decoded_token.get("firebase")
+        sign_in_provider = (
+            firebase_claims.get("sign_in_provider")
+            if isinstance(firebase_claims, Mapping)
+            else None
+        )
+
+        if sign_in_provider != allowed_provider:
+            raise AuthTokenInvalidError("Firebase ID token uses an unsupported sign-in provider.")
 
     def _verify_token(self, token: str) -> Mapping[str, Any]:
         if self._verify_id_token is not None:

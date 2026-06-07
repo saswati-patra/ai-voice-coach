@@ -13,6 +13,12 @@ type HeaderSubtitleState = AuthModeState & {
   profile: string;
 };
 
+type LoginProviderCopy = {
+  actionLabel: string;
+  description: string;
+  title: string;
+};
+
 export function protectedRouteRedirectPath({
   authReady,
   requiresFirebaseAuth,
@@ -50,4 +56,12 @@ export function workspaceHeaderSubtitle({
   }
 
   return profile || "Local study workspace";
+}
+
+export function loginProviderCopy(): LoginProviderCopy {
+  return {
+    actionLabel: "Continue with Google",
+    description: "Use your Google account to continue.",
+    title: "Login",
+  };
 }

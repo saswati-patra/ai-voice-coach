@@ -63,6 +63,24 @@ variable "firebase_hosting_site_id" {
   default     = null
 }
 
+variable "identity_platform_extra_authorized_domains" {
+  description = "Additional domains allowed for Identity Platform OAuth redirects."
+  type        = list(string)
+  default     = []
+}
+
+variable "google_oauth_client_id" {
+  description = "OAuth client ID for Identity Platform Google sign-in."
+  type        = string
+  sensitive   = true
+}
+
+variable "google_oauth_client_secret" {
+  description = "OAuth client secret for Identity Platform Google sign-in."
+  type        = string
+  sensitive   = true
+}
+
 variable "force_destroy_buckets" {
   description = "Whether OpenTofu can delete non-empty buckets. Keep false for normal environments."
   type        = bool

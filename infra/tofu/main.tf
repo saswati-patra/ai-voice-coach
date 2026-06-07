@@ -35,7 +35,13 @@ locals {
   github_workload_identity_pool_id     = coalesce(var.github_workload_identity_pool_id, "github-actions-${var.environment}")
   github_workload_identity_provider_id = "github"
   firebase_hosting_site_id             = coalesce(var.firebase_hosting_site_id, var.project_id)
-  study_materials_bucket               = coalesce(var.study_materials_bucket_name, "${var.project_id}-${var.environment}-study-materials")
+  identity_platform_authorized_domains = distinct(compact(concat([
+    "localhost",
+    "${var.project_id}.firebaseapp.com",
+    "${local.firebase_hosting_site_id}.firebaseapp.com",
+    "${local.firebase_hosting_site_id}.web.app",
+  ], var.identity_platform_extra_authorized_domains)))
+  study_materials_bucket = coalesce(var.study_materials_bucket_name, "${var.project_id}-${var.environment}-study-materials")
 
   required_apis = toset([
     "aiplatform.googleapis.com",
@@ -205,10 +211,12 @@ resource "google_identity_platform_config" "default" {
   provider = google-beta
   project  = google_firebase_project.default.project
 
+  authorized_domains = local.identity_platform_authorized_domains
+
   sign_in {
     email {
-      enabled           = true
-      password_required = true
+      enabled           = false
+      password_required = false
     }
 
     phone_number {
@@ -222,13 +230,27 @@ resource "google_identity_platform_config" "default" {
   ]
 }
 
+resource "google_identity_platform_default_supported_idp_config" "google" {
+  provider = google-beta
+  project  = google_firebase_project.default.project
+
+  idp_id        = "google.com"
+  client_id     = var.google_oauth_client_id
+  client_secret = var.google_oauth_client_secret
+  enabled       = true
+
+  depends_on = [
+    google_identity_platform_config.default,
+  ]
+}
+
 resource "google_firebase_web_app" "frontend" {
   provider     = google-beta
   project      = google_firebase_project.default.project
   display_name = "AI Voice Coach Frontend (${var.environment})"
 
   depends_on = [
-    google_identity_platform_config.default,
+    google_identity_platform_default_supported_idp_config.google,
   ]
 }
 

@@ -50,6 +50,10 @@ Set `AUTH_MODE=firebase` to require Firebase ID tokens on user-owned API routes.
 clients must send `Authorization: Bearer <Firebase ID token>`. The voice WebSocket uses
 `/api/v1/ws/voice-session?id_token=<Firebase ID token>`.
 
+By default, Firebase tokens must come from Google account sign-in. Keep
+`FIREBASE_ALLOWED_SIGN_IN_PROVIDER=google.com` unless you intentionally add another
+provider later.
+
 ## API
 
 - `GET /health`

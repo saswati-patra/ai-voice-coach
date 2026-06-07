@@ -23,6 +23,10 @@ class Settings(BaseSettings):
         default=False,
         validation_alias="FIREBASE_CHECK_REVOKED",
     )
+    firebase_allowed_sign_in_provider: str = Field(
+        default="google.com",
+        validation_alias="FIREBASE_ALLOWED_SIGN_IN_PROVIDER",
+    )
     firestore_database: str = Field(default="(default)", validation_alias="FIRESTORE_DATABASE")
     gemini_live_model: str = Field(
         default="gemini-live-2.5-flash-native-audio",

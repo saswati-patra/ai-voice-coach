@@ -9,6 +9,7 @@ services:
       APP_ENV: local
       AUTH_MODE: dev
       DEV_USER_ID: dev-user
+      FIREBASE_ALLOWED_SIGN_IN_PROVIDER: google.com
       GOOGLE_CLOUD_ENABLED: "false"
       GOOGLE_CLOUD_LOCATION: us-central1
     volumes:

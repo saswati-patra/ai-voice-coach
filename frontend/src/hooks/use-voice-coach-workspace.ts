@@ -24,11 +24,10 @@ import {
 import { apiBaseUrl, authMode, displayTarget, requiresFirebaseAuth, wsBaseUrl } from "@/config";
 import {
   auth,
-  createUserWithEmailAndPassword,
   firebaseConfigured,
   getCurrentIdToken,
   onAuthStateChanged,
-  signInWithEmailAndPassword,
+  signInWithGoogleAccount,
   signOut,
   type User,
 } from "@/firebase";
@@ -55,8 +54,6 @@ function messageFromError(error: unknown, fallback: string): string {
 export function useVoiceCoachWorkspace() {
   const [authReady, setAuthReady] = useState(!firebaseConfigured);
   const [authUser, setAuthUser] = useState<User | null>(null);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [profile, setProfile] = useState("");
   const [authMessage, setAuthMessage] = useState("");
   const [materials, setMaterials] = useState<StudyMaterial[]>([]);
@@ -140,37 +137,11 @@ export function useVoiceCoachWorkspace() {
       return;
     }
 
-    if (!email || !password) {
-      setAuthMessage("Enter email and password.");
-      return;
-    }
-
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      setPassword("");
+      await signInWithGoogleAccount();
       setAuthMessage("Signed in.");
     } catch (error) {
       setAuthMessage(messageFromError(error, "Sign in failed."));
-    }
-  }
-
-  async function createAccount() {
-    if (!auth) {
-      setAuthMessage("Sign-in settings are missing.");
-      return;
-    }
-
-    if (!email || !password) {
-      setAuthMessage("Enter email and password.");
-      return;
-    }
-
-    try {
-      await createUserWithEmailAndPassword(auth, email, password);
-      setPassword("");
-      setAuthMessage("Account created.");
-    } catch (error) {
-      setAuthMessage(messageFromError(error, "Account creation failed."));
     }
   }
 
@@ -440,7 +411,7 @@ export function useVoiceCoachWorkspace() {
   const isConnected = voiceStatus === "connected" || voiceStatus === "recording";
   const isConnecting = voiceStatus === "connecting";
   const isRecording = voiceStatus === "recording";
-  const canSubmitCredentials = Boolean(showFirebaseControls && auth && email && password && !loading);
+  const canSignIn = Boolean(showFirebaseControls && auth && authReady && !loading);
   const authStateLabel = (() => {
     if (!requiresFirebaseAuth || !firebaseConfigured) {
       return "dev fallback";
@@ -468,18 +439,13 @@ export function useVoiceCoachWorkspace() {
       authStateLabel,
       authStatusTone,
       authUser,
-      canSubmitCredentials,
+      canSignIn,
       canUseProtectedApi,
-      createAccount,
-      email,
       firebaseConfigured,
       message: authMessage,
-      password,
       profile,
       refreshData,
       requiresFirebaseAuth,
-      setEmail,
-      setPassword,
       showFirebaseControls,
       signIn,
       signOut: signOutUser,

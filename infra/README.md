@@ -12,7 +12,7 @@ tofu/
   terraform.tfvars.example
 ```
 
-The current OpenTofu configuration provisions the dev cloud foundation: required APIs, Firebase Auth foundation, Firebase Web App config, Firebase Hosting, Firestore, Cloud Storage, Artifact Registry, backend and GitHub Actions service accounts, Workload Identity Federation, and baseline IAM.
+The current OpenTofu configuration provisions the dev cloud foundation: required APIs, Firebase Auth foundation with Google account sign-in, Firebase Web App config, Firebase Hosting, Firestore, Cloud Storage, Artifact Registry, backend and GitHub Actions service accounts, Workload Identity Federation, and baseline IAM.
 
 ## Prerequisites
 
@@ -54,7 +54,11 @@ From the repo root:
 cp infra/tofu/terraform.tfvars.example infra/tofu/terraform.tfvars
 ```
 
-Edit `infra/tofu/terraform.tfvars`, then run:
+Edit `infra/tofu/terraform.tfvars`. The Google sign-in provider needs an OAuth
+web client ID and secret; keep those real values only in the ignored local
+`terraform.tfvars` file.
+
+Then run:
 
 ```bash
 tofu -chdir=infra/tofu init
@@ -92,6 +96,10 @@ Do not commit:
 - `*.tfstate`
 - `*.tfvars`
 - Google Cloud credential files
+
+The Identity Platform Google provider stores the OAuth client secret in OpenTofu
+state. Keep state local and uncommitted until a later remote-state milestone
+adds a locked-down backend.
 
 Track provider locks and example files such as `.terraform.lock.hcl` and `terraform.tfvars.example`.
 
