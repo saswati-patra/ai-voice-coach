@@ -43,7 +43,12 @@ export function DashboardPage({ workspace }: DashboardPageProps) {
         <MetricCard icon={FileText} label="Materials" value={study.materials.length} detail={`${ingestedCount} ingested`} />
         <MetricCard icon={BookOpen} label="Review Items" value={review.items.length} detail="Generated from study docs" />
         <MetricCard icon={Mic} label="Voice" value={voice.status} detail="Live session harness" />
-        <MetricCard icon={Cloud} label="Backend" value={auth.authMode} detail={auth.apiTarget} />
+        <MetricCard
+          icon={Cloud}
+          label="Backend"
+          value={auth.requiresFirebaseAuth ? "Signed" : "Local"}
+          detail={auth.apiTarget}
+        />
       </section>
 
       <section className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">

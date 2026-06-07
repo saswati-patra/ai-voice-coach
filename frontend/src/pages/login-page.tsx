@@ -28,7 +28,7 @@ export function LoginPage({ workspace }: LoginPageProps) {
     <div className="mx-auto grid min-h-[calc(100vh-12rem)] w-full max-w-5xl items-center gap-6 lg:grid-cols-[0.9fr_1.1fr]">
       <section className="space-y-5">
         <Badge variant="outline" className="border-primary/30 text-primary">
-          Firebase Auth
+          Account
         </Badge>
         <div>
           <h1 className="text-3xl font-semibold tracking-normal text-foreground sm:text-4xl">
@@ -65,9 +65,9 @@ export function LoginPage({ workspace }: LoginPageProps) {
           {!auth.firebaseConfigured ? (
             <Alert variant="warning">
               <AlertTriangle className="size-4" />
-              <AlertTitle>Firebase config missing</AlertTitle>
+              <AlertTitle>Sign-in settings missing</AlertTitle>
               <AlertDescription>
-                This local build does not have Firebase settings yet.
+                This local build does not have sign-in settings yet.
               </AlertDescription>
             </Alert>
           ) : null}

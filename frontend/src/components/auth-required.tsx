@@ -32,7 +32,7 @@ export function AuthRequired({ children, workspace }: AuthRequiredProps) {
           </div>
           <div>
             <h1 className="text-xl font-semibold tracking-normal">Checking identity</h1>
-            <p className="mt-2 text-sm text-muted-foreground">Preparing your local Firebase session.</p>
+            <p className="mt-2 text-sm text-muted-foreground">Preparing your local session.</p>
           </div>
         </CardContent>
       </Card>

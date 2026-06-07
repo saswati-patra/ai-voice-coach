@@ -24,8 +24,8 @@ export function CloudPage({ workspace }: CloudPageProps) {
     <div className="space-y-6">
       <PageHeader
         eyebrow="Cloud"
-        title="Auth and runtime wiring"
-        description="Firebase identity, API targets, and deployment checkpoints."
+        title="Identity and runtime wiring"
+        description="Account status, API targets, and deployment checkpoints."
       />
 
       <BaseTabs defaultValue="identity" className="space-y-4">
@@ -50,9 +50,9 @@ export function CloudPage({ workspace }: CloudPageProps) {
             <CardHeader>
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                  <CardTitle>Firebase Auth</CardTitle>
+                  <CardTitle>Account</CardTitle>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    Dev auth locally. Firebase ID tokens in cloud mode.
+                    Local identity for development. Signed requests in cloud mode.
                   </p>
                 </div>
                 <Badge variant={auth.authStatusTone}>{auth.authStateLabel}</Badge>
@@ -62,7 +62,7 @@ export function CloudPage({ workspace }: CloudPageProps) {
               {auth.requiresFirebaseAuth && auth.authUser ? (
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div className="min-w-0">
-                    <p className="truncate text-sm font-semibold">{auth.authUser.email || "Firebase user"}</p>
+                    <p className="truncate text-sm font-semibold">{auth.authUser.email || "Signed-in user"}</p>
                     <p className="mt-1 break-all text-xs text-muted-foreground">{auth.authUser.uid}</p>
                   </div>
                   <Button variant="outline" onClick={auth.signOut}>
@@ -92,7 +92,7 @@ export function CloudPage({ workspace }: CloudPageProps) {
             <TargetCard icon={Plug} label="WebSocket" value={auth.wsTarget} />
             <TargetCard
               icon={auth.firebaseConfigured ? CheckCircle2 : Info}
-              label="Firebase"
+              label="Sign-in config"
               value={auth.firebaseConfigured ? "configured" : "not configured"}
             />
           </section>
@@ -109,7 +109,7 @@ export function CloudPage({ workspace }: CloudPageProps) {
                 {[
                   "Apply OpenTofu when cloud resources change.",
                   "Run the manual GitHub Action to deploy when ready.",
-                  "Sign in with Firebase from the hosted frontend.",
+                  "Sign in from the hosted frontend.",
                   "Upload, ingest, review, then test voice.",
                 ].map((item, index) => (
                   <li key={item} className="rounded-md bg-muted/60 p-4">

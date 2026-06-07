@@ -42,7 +42,7 @@ type ServerEvent = {
 
 function messageFromError(error: unknown, fallback: string): string {
   if (error instanceof ApiError && error.status === 401) {
-    return "Sign in again. Firebase token is missing or expired.";
+    return "Sign in again. Your session is missing or expired.";
   }
 
   if (error instanceof Error) {
@@ -85,10 +85,10 @@ export function useVoiceCoachWorkspace() {
   const refreshData = useCallback(
     async (currentUser: User | null = authUser) => {
       if (requiresFirebaseAuth && !firebaseConfigured) {
-        setProfile("Firebase config missing");
+        setProfile("Sign-in config missing");
         setMaterials([]);
         setReviewItems([]);
-        setAuthMessage("Set VITE_FIREBASE_* values before using Firebase auth mode.");
+        setAuthMessage("Sign-in settings are missing for this local build.");
         return;
       }
 
@@ -136,7 +136,7 @@ export function useVoiceCoachWorkspace() {
 
   async function signIn() {
     if (!auth) {
-      setAuthMessage("Firebase is not configured.");
+      setAuthMessage("Sign-in settings are missing.");
       return;
     }
 
@@ -156,7 +156,7 @@ export function useVoiceCoachWorkspace() {
 
   async function createAccount() {
     if (!auth) {
-      setAuthMessage("Firebase is not configured.");
+      setAuthMessage("Sign-in settings are missing.");
       return;
     }
 
@@ -434,7 +434,7 @@ export function useVoiceCoachWorkspace() {
   const canUseProtectedApi =
     authReady && (!requiresFirebaseAuth || (firebaseConfigured && Boolean(authUser)));
   const authGateMessage = !firebaseConfigured
-    ? "Firebase auth mode needs frontend Firebase config."
+    ? "Sign-in settings are missing for this local build."
     : "Sign in to use the cloud backend.";
   const showFirebaseControls = requiresFirebaseAuth && firebaseConfigured;
   const isConnected = voiceStatus === "connected" || voiceStatus === "recording";

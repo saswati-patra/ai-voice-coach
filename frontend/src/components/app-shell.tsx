@@ -61,9 +61,6 @@ export function AppShell({ children, workspace }: AppShellProps) {
             </NavLink>
 
             <div className="flex items-center gap-2">
-              <Badge variant="outline" className="hidden border-primary/30 text-primary sm:inline-flex">
-                {auth.authMode}
-              </Badge>
               {showWorkspaceNavigation ? (
                 <>
                   <Badge variant={voice.status === "recording" ? "success" : "secondary"} className="hidden sm:inline-flex">
