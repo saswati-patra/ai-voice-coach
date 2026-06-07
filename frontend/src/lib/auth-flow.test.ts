@@ -4,6 +4,7 @@ import {
   loginRedirectPath,
   protectedRouteRedirectPath,
   shouldShowWorkspaceNavigation,
+  workspaceHeaderSubtitle,
 } from "@/lib/auth-flow";
 
 describe("auth flow", () => {
@@ -46,5 +47,22 @@ describe("auth flow", () => {
         signedIn: true,
       })
     ).toBe("/");
+  });
+
+  it("does not show signed-out profile text in the header", () => {
+    expect(
+      workspaceHeaderSubtitle({
+        profile: "Signed out",
+        requiresFirebaseAuth: true,
+        signedIn: false,
+      })
+    ).toBe("Study workspace");
+    expect(
+      workspaceHeaderSubtitle({
+        profile: "Local Dev User (dev-user)",
+        requiresFirebaseAuth: true,
+        signedIn: true,
+      })
+    ).toBe("Local Dev User (dev-user)");
   });
 });

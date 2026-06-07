@@ -13,7 +13,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { VoiceCoachWorkspace } from "@/hooks/use-voice-coach-workspace";
-import { shouldShowWorkspaceNavigation } from "@/lib/auth-flow";
+import { shouldShowWorkspaceNavigation, workspaceHeaderSubtitle } from "@/lib/auth-flow";
 import { cn } from "@/lib/utils";
 
 type AppShellProps = {
@@ -35,6 +35,11 @@ export function AppShell({ children, workspace }: AppShellProps) {
     requiresFirebaseAuth: auth.requiresFirebaseAuth,
     signedIn: Boolean(auth.authUser),
   });
+  const headerSubtitle = workspaceHeaderSubtitle({
+    profile: auth.profile,
+    requiresFirebaseAuth: auth.requiresFirebaseAuth,
+    signedIn: Boolean(auth.authUser),
+  });
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -50,7 +55,7 @@ export function AppShell({ children, workspace }: AppShellProps) {
                   AI Voice Coach
                 </span>
                 <span className="block truncate text-xs text-muted-foreground">
-                  {auth.profile || "Local study workspace"}
+                  {headerSubtitle}
                 </span>
               </span>
             </NavLink>

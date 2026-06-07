@@ -9,6 +9,10 @@ type AuthModeState = {
   signedIn: boolean;
 };
 
+type HeaderSubtitleState = AuthModeState & {
+  profile: string;
+};
+
 export function protectedRouteRedirectPath({
   authReady,
   requiresFirebaseAuth,
@@ -34,4 +38,16 @@ export function shouldShowWorkspaceNavigation({
   signedIn,
 }: AuthModeState): boolean {
   return !requiresFirebaseAuth || signedIn;
+}
+
+export function workspaceHeaderSubtitle({
+  profile,
+  requiresFirebaseAuth,
+  signedIn,
+}: HeaderSubtitleState): string {
+  if (requiresFirebaseAuth && !signedIn) {
+    return "Study workspace";
+  }
+
+  return profile || "Local study workspace";
 }
