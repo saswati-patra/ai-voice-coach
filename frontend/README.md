@@ -100,3 +100,5 @@ When `VITE_AUTH_MODE=firebase`, the frontend requires a signed-in Firebase user 
 ```text
 /api/v1/ws/voice-session?id_token=<Firebase ID token>
 ```
+
+In Firebase mode, signed-out users are redirected to `/cloud` for sign-in before they can view Dashboard, Study, Review, or Voice pages. Firebase also persists browser sessions, so use the Sign Out button on `/cloud` to test the signed-out state.
