@@ -6,7 +6,7 @@ Google Cloud-only AI voice study coach learning project.
 
 ```text
 backend/          FastAPI backend, Python package, tests, Dockerfile
-frontend/         React/Vite frontend with Firebase Auth and voice harness
+frontend/         React/Vite multi-page frontend with Firebase Auth and voice harness
 infra/tofu/       OpenTofu for Google Cloud foundation resources
 .github/          GitHub Actions cloud deployment workflow
 ```
@@ -49,7 +49,9 @@ Then check <http://localhost:8000/health>. If port `8000` is already in use, run
 
 ## Browser App
 
-The React app provides Firebase email/password auth, study material upload/ingestion controls, review items, and the microphone voice harness.
+The React app provides Dashboard, Study, Review, Voice, and Cloud pages built with Tailwind CSS, local shadcn-style UI primitives, and Base UI tabs.
+
+It includes Firebase email/password auth, study material upload/ingestion controls, review items, and the microphone voice harness.
 
 In stub mode, the app works without Firebase config. For Firebase mode, set `VITE_AUTH_MODE=firebase`, fill `frontend/.env` with the Firebase Web App values from OpenTofu, and set backend `AUTH_MODE=firebase`.
 

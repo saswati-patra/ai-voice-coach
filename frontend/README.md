@@ -2,16 +2,37 @@
 
 React/Vite frontend for the AI Voice Coach learning project. It includes Firebase email/password auth, study material upload/ingestion controls, review items, and the local microphone voice harness.
 
+The UI is organized as a small multi-page React app with Tailwind CSS v4, local shadcn-style primitives, and Base UI tabs for the cloud/auth workflow.
+
 ## Structure
 
 ```text
 src/
-  api.ts        Backend API client with Firebase bearer tokens
-  audio.ts      PCM audio helpers for the voice harness
-  firebase.ts   Firebase Web SDK setup
-  main.tsx      React app
-  styles.css    App styles
+  api.ts                 Backend API client with Firebase bearer tokens
+  audio.ts               PCM audio helpers for the voice harness
+  firebase.ts            Firebase Web SDK setup
+  main.tsx               React entrypoint
+  App.tsx                Router and shared workspace state
+  hooks/                 App state and voice-session orchestration
+  pages/                 Dashboard, Study, Review, Voice, and Cloud pages
+  components/            App shell plus shadcn-style UI primitives
+  styles.css             Tailwind v4 theme tokens and global styles
 ```
+
+## Pages
+
+- `/`: workspace dashboard and learning loop overview
+- `/study`: upload study documents and trigger ingestion
+- `/review`: generated review item lanes
+- `/voice`: microphone harness and WebSocket session log
+- `/cloud`: Firebase auth, runtime targets, and manual cloud workflow
+
+## UI Stack
+
+- Tailwind CSS v4 through the Vite plugin
+- Local shadcn-style components in `src/components/ui`
+- Base UI tabs via `@base-ui/react`
+- Lucide icons for tool and navigation buttons
 
 ## Local Development
 
