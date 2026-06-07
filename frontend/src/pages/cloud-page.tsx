@@ -1,7 +1,6 @@
-import { CheckCircle2, Cloud, Info, KeyRound, LogIn, LogOut, Plug, Server, ShieldCheck, UserPlus } from "lucide-react";
+import { CheckCircle2, Cloud, Info, KeyRound, LogOut, Plug, Server, ShieldCheck } from "lucide-react";
 
 import { PageHeader } from "@/components/page-header";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   BaseTabs,
   BaseTabsIndicator,
@@ -12,7 +11,6 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import type { VoiceCoachWorkspace } from "@/hooks/use-voice-coach-workspace";
 
 type CloudPageProps = {
@@ -20,7 +18,7 @@ type CloudPageProps = {
 };
 
 export function CloudPage({ workspace }: CloudPageProps) {
-  const { auth, loading } = workspace;
+  const { auth } = workspace;
 
   return (
     <div className="space-y-6">
@@ -29,12 +27,6 @@ export function CloudPage({ workspace }: CloudPageProps) {
         title="Auth and runtime wiring"
         description="Firebase identity, API targets, and deployment checkpoints."
       />
-
-      {auth.requiresFirebaseAuth && !auth.canUseProtectedApi ? (
-        <Alert variant="warning">
-          <AlertDescription>{auth.authGateMessage}</AlertDescription>
-        </Alert>
-      ) : null}
 
       <BaseTabs defaultValue="identity" className="space-y-4">
         <BaseTabsList>
@@ -67,7 +59,7 @@ export function CloudPage({ workspace }: CloudPageProps) {
               </div>
             </CardHeader>
             <CardContent>
-              {auth.showFirebaseControls && auth.authUser ? (
+              {auth.requiresFirebaseAuth && auth.authUser ? (
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div className="min-w-0">
                     <p className="truncate text-sm font-semibold">{auth.authUser.email || "Firebase user"}</p>
@@ -78,40 +70,13 @@ export function CloudPage({ workspace }: CloudPageProps) {
                     Sign Out
                   </Button>
                 </div>
-              ) : auth.showFirebaseControls ? (
-                <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto_auto]">
-                  <Input
-                    value={auth.email}
-                    onChange={(event) => auth.setEmail(event.target.value)}
-                    type="email"
-                    placeholder="Email"
-                    autoComplete="email"
-                    disabled={!auth.authReady || loading}
-                  />
-                  <Input
-                    value={auth.password}
-                    onChange={(event) => auth.setPassword(event.target.value)}
-                    type="password"
-                    placeholder="Password"
-                    autoComplete="current-password"
-                    disabled={!auth.authReady || loading}
-                  />
-                  <Button onClick={auth.signIn} disabled={!auth.canSubmitCredentials}>
-                    <LogIn className="size-4" />
-                    Sign In
-                  </Button>
-                  <Button variant="outline" onClick={auth.createAccount} disabled={!auth.canSubmitCredentials}>
-                    <UserPlus className="size-4" />
-                    Create
-                  </Button>
-                </div>
               ) : (
                 <div className="flex items-start gap-3 rounded-lg border border-border bg-muted/50 p-4">
                   <KeyRound className="mt-0.5 size-5 text-primary" />
                   <div>
                     <p className="text-sm font-semibold">Dev auth is active</p>
                     <p className="mt-1 text-sm text-muted-foreground">
-                      Protected routes use the local fixed user until Firebase mode is enabled.
+                      Protected routes use the local fixed user in dev mode.
                     </p>
                   </div>
                 </div>

@@ -4,6 +4,7 @@ import { ShieldCheck } from "lucide-react";
 
 import { Card, CardContent } from "@/components/ui/card";
 import type { VoiceCoachWorkspace } from "@/hooks/use-voice-coach-workspace";
+import { protectedRouteRedirectPath } from "@/lib/auth-flow";
 
 type AuthRequiredProps = {
   children: ReactNode;
@@ -12,8 +13,13 @@ type AuthRequiredProps = {
 
 export function AuthRequired({ children, workspace }: AuthRequiredProps) {
   const { auth } = workspace;
+  const redirectTo = protectedRouteRedirectPath({
+    authReady: auth.authReady,
+    requiresFirebaseAuth: auth.requiresFirebaseAuth,
+    signedIn: Boolean(auth.authUser),
+  });
 
-  if (!auth.requiresFirebaseAuth || auth.authUser) {
+  if (!redirectTo) {
     return children;
   }
 
@@ -33,5 +39,5 @@ export function AuthRequired({ children, workspace }: AuthRequiredProps) {
     );
   }
 
-  return <Navigate to="/cloud" replace />;
+  return <Navigate to={redirectTo} replace />;
 }

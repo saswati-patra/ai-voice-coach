@@ -22,10 +22,11 @@ src/
 ## Pages
 
 - `/`: workspace dashboard and learning loop overview
+- `/login`: Firebase email/password sign-in
 - `/study`: upload study documents and trigger ingestion
 - `/review`: generated review item lanes
 - `/voice`: microphone harness and WebSocket session log
-- `/cloud`: Firebase auth, runtime targets, and manual cloud workflow
+- `/cloud`: authenticated cloud, runtime target, and deployment workflow settings
 
 ## UI Stack
 
@@ -101,4 +102,4 @@ When `VITE_AUTH_MODE=firebase`, the frontend requires a signed-in Firebase user 
 /api/v1/ws/voice-session?id_token=<Firebase ID token>
 ```
 
-In Firebase mode, signed-out users are redirected to `/cloud` for sign-in before they can view Dashboard, Study, Review, or Voice pages. Firebase also persists browser sessions, so use the Sign Out button on `/cloud` to test the signed-out state.
+In Firebase mode, signed-out users are redirected to `/login` before they can view Dashboard, Study, Review, Voice, or Cloud pages. Firebase also persists browser sessions, so use the Sign Out button on `/cloud` to test the signed-out state.

@@ -8,6 +8,7 @@ import { DashboardPage } from "@/pages/dashboard-page";
 import { ReviewPage } from "@/pages/review-page";
 import { StudyPage } from "@/pages/study-page";
 import { VoicePage } from "@/pages/voice-page";
+import { LoginPage } from "@/pages/login-page";
 
 export function App() {
   const workspace = useVoiceCoachWorkspace();
@@ -47,7 +48,15 @@ export function App() {
             </AuthRequired>
           }
         />
-        <Route path="/cloud" element={<CloudPage workspace={workspace} />} />
+        <Route
+          path="/cloud"
+          element={
+            <AuthRequired workspace={workspace}>
+              <CloudPage workspace={workspace} />
+            </AuthRequired>
+          }
+        />
+        <Route path="/login" element={<LoginPage workspace={workspace} />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </AppShell>

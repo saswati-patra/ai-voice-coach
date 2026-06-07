@@ -13,6 +13,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { VoiceCoachWorkspace } from "@/hooks/use-voice-coach-workspace";
+import { shouldShowWorkspaceNavigation } from "@/lib/auth-flow";
 import { cn } from "@/lib/utils";
 
 type AppShellProps = {
@@ -30,6 +31,10 @@ const navItems = [
 
 export function AppShell({ children, workspace }: AppShellProps) {
   const { auth, loading, voice } = workspace;
+  const showWorkspaceNavigation = shouldShowWorkspaceNavigation({
+    requiresFirebaseAuth: auth.requiresFirebaseAuth,
+    signedIn: Boolean(auth.authUser),
+  });
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -54,39 +59,45 @@ export function AppShell({ children, workspace }: AppShellProps) {
               <Badge variant="outline" className="hidden border-primary/30 text-primary sm:inline-flex">
                 {auth.authMode}
               </Badge>
-              <Badge variant={voice.status === "recording" ? "success" : "secondary"} className="hidden sm:inline-flex">
-                {voice.status}
-              </Badge>
-              <Button
-                aria-label="Refresh workspace"
-                onClick={() => auth.refreshData()}
-                disabled={loading}
-                size="icon"
-                variant="outline"
-              >
-                <RefreshCw className={cn("size-4", loading && "animate-spin")} />
-              </Button>
+              {showWorkspaceNavigation ? (
+                <>
+                  <Badge variant={voice.status === "recording" ? "success" : "secondary"} className="hidden sm:inline-flex">
+                    {voice.status}
+                  </Badge>
+                  <Button
+                    aria-label="Refresh workspace"
+                    onClick={() => auth.refreshData()}
+                    disabled={loading}
+                    size="icon"
+                    variant="outline"
+                  >
+                    <RefreshCw className={cn("size-4", loading && "animate-spin")} />
+                  </Button>
+                </>
+              ) : null}
             </div>
           </div>
 
-          <nav className="flex gap-1 overflow-x-auto pb-1">
-            {navItems.map((item) => (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                end={item.to === "/"}
-                className={({ isActive }) =>
-                  cn(
-                    "inline-flex h-10 shrink-0 items-center gap-2 rounded-md px-3 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground",
-                    isActive && "bg-primary text-primary-foreground shadow-sm hover:bg-primary hover:text-primary-foreground"
-                  )
-                }
-              >
-                <item.icon className="size-4" />
-                {item.label}
-              </NavLink>
-            ))}
-          </nav>
+          {showWorkspaceNavigation ? (
+            <nav className="flex gap-1 overflow-x-auto pb-1">
+              {navItems.map((item) => (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  end={item.to === "/"}
+                  className={({ isActive }) =>
+                    cn(
+                      "inline-flex h-10 shrink-0 items-center gap-2 rounded-md px-3 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground",
+                      isActive && "bg-primary text-primary-foreground shadow-sm hover:bg-primary hover:text-primary-foreground"
+                    )
+                  }
+                >
+                  <item.icon className="size-4" />
+                  {item.label}
+                </NavLink>
+              ))}
+            </nav>
+          ) : null}
         </div>
       </header>
 
