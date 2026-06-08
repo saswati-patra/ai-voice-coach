@@ -19,6 +19,18 @@ type LoginProviderCopy = {
   title: string;
 };
 
+type LandingPrimaryCta = {
+  href: string;
+  label: string;
+};
+
+const legacyWorkspaceRoutes = new Map([
+  ["/study", "/app/study"],
+  ["/review", "/app/review"],
+  ["/voice", "/app/voice"],
+  ["/cloud", "/app/cloud"],
+]);
+
 export function protectedRouteRedirectPath({
   authReady,
   requiresFirebaseAuth,
@@ -32,7 +44,11 @@ export function protectedRouteRedirectPath({
 }
 
 export function loginRedirectPath({ requiresFirebaseAuth, signedIn }: AuthModeState): string | null {
-  if (!requiresFirebaseAuth || signedIn) {
+  if (signedIn) {
+    return "/app";
+  }
+
+  if (!requiresFirebaseAuth) {
     return "/";
   }
 
@@ -64,4 +80,14 @@ export function loginProviderCopy(): LoginProviderCopy {
     description: "Use your Google account to continue.",
     title: "Login",
   };
+}
+
+export function landingPrimaryCta({ signedIn }: { signedIn: boolean }): LandingPrimaryCta {
+  return signedIn
+    ? { href: "/app", label: "Open workspace" }
+    : { href: "/login", label: "Start studying" };
+}
+
+export function legacyWorkspaceRedirectPath(pathname: string): string | null {
+  return legacyWorkspaceRoutes.get(pathname) || null;
 }

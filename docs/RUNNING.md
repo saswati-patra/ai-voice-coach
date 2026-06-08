@@ -333,7 +333,11 @@ http://localhost:5173
 
 Vite proxies `/api` and `/health` to the backend on port 8000.
 
-The frontend shows the active auth mode, API target, WebSocket target, and
+The frontend opens on the public portfolio/SaaS landing page at `/`. The
+authenticated workspace lives under `/app`, with Study, Review, Voice, and Cloud
+pages under `/app/*`.
+
+The workspace shows the active auth mode, API target, WebSocket target, and
 sign-in config status. In Firebase mode, upload, ingest, refresh, and voice
 session actions are disabled until a user signs in with a Google account.
 
@@ -380,7 +384,7 @@ Open:
 http://localhost:5173
 ```
 
-Then:
+Open the workspace from the landing page, then:
 
 - Click **Connect**
 - Click **Start Mic**

@@ -58,7 +58,7 @@ export function DashboardPage({ workspace }: DashboardPageProps) {
               <CardTitle>Recent Materials</CardTitle>
               <p className="mt-1 text-sm text-muted-foreground">Latest source files in this workspace.</p>
             </div>
-            <Link className={cn(buttonVariants({ variant: "outline", size: "sm" }))} to="/study">
+            <Link className={cn(buttonVariants({ variant: "outline", size: "sm" }))} to="/app/study">
               Open
               <ArrowRight className="size-4" />
             </Link>

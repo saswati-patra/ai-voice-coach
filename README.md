@@ -6,14 +6,15 @@ Google Cloud-only AI voice study coach learning project.
 
 ```text
 backend/          FastAPI backend, Python package, tests, Dockerfile
-frontend/         React/Vite multi-page frontend with Firebase Auth Google sign-in and voice harness
+frontend/         React/Vite SaaS landing page, authenticated workspace, and voice harness
+docs/             Runbook and README screenshots
 infra/tofu/       OpenTofu for Google Cloud foundation resources
 .github/          GitHub Actions cloud deployment workflow
 ```
 
 The app runs locally in stub mode by default. Real Google Cloud calls stay disabled until `GOOGLE_CLOUD_ENABLED=true`.
 
-For the step-by-step cloud setup runbook, see [RUNNING.md](RUNNING.md).
+For the step-by-step cloud setup runbook, see [docs/RUNNING.md](docs/RUNNING.md).
 
 ## Backend
 
@@ -49,9 +50,19 @@ Then check <http://localhost:8000/health>. If port `8000` is already in use, run
 
 ## Browser App
 
-The React app provides Dashboard, Study, Review, Voice, and Cloud pages built with Tailwind CSS, local shadcn-style UI primitives, and Base UI tabs.
+The React app provides a public portfolio/SaaS landing page at `/` and protected workspace pages under `/app/*`, built with Tailwind CSS, local shadcn-style UI primitives, and Base UI tabs.
 
 It includes Google account sign-in through Firebase Auth, study material upload/ingestion controls, review items, and the microphone voice harness.
+
+## Screenshots
+
+![AI Voice Coach landing page desktop](docs/assets/landing-desktop.jpg)
+
+<p align="center">
+  <img src="docs/assets/landing-mobile.jpg" alt="AI Voice Coach landing page mobile" width="260">
+</p>
+
+![AI Voice Coach workspace dashboard](docs/assets/workspace-dashboard.jpg)
 
 In stub mode, the app works without Firebase config. For Firebase mode, set `VITE_AUTH_MODE=firebase`, fill `frontend/.env` with the Firebase Web App values from OpenTofu, and set backend `AUTH_MODE=firebase`.
 

@@ -1,6 +1,6 @@
 # AI Voice Coach Frontend
 
-React/Vite frontend for the AI Voice Coach learning project. It includes Google account sign-in through Firebase Auth, study material upload/ingestion controls, review items, and the local microphone voice harness.
+React/Vite frontend for the AI Voice Coach learning project. It includes a public portfolio/SaaS landing page, Google account sign-in through Firebase Auth, study material upload/ingestion controls, review items, and the local microphone voice harness.
 
 The UI is organized as a small multi-page React app with Tailwind CSS v4, local shadcn-style primitives, and Base UI tabs for the cloud/auth workflow.
 
@@ -21,12 +21,13 @@ src/
 
 ## Pages
 
-- `/`: workspace dashboard and learning loop overview
+- `/`: public portfolio/SaaS landing page
 - `/login`: Google account sign-in
-- `/study`: upload study documents and trigger ingestion
-- `/review`: generated review item lanes
-- `/voice`: microphone harness and WebSocket session log
-- `/cloud`: authenticated cloud, runtime target, and deployment workflow settings
+- `/app`: workspace dashboard and learning loop overview
+- `/app/study`: upload study documents and trigger ingestion
+- `/app/review`: generated review item lanes
+- `/app/voice`: microphone harness and WebSocket session log
+- `/app/cloud`: authenticated cloud, runtime target, and deployment workflow settings
 
 ## UI Stack
 
@@ -102,4 +103,4 @@ When `VITE_AUTH_MODE=firebase`, the frontend requires a signed-in Firebase user 
 /api/v1/ws/voice-session?id_token=<Firebase ID token>
 ```
 
-In Firebase mode, signed-out users are redirected to `/login` before they can view Dashboard, Study, Review, Voice, or Cloud pages. The login page only exposes Google account sign-in; the backend also rejects non-Google Firebase sign-in providers. Firebase persists browser sessions, so use the Sign Out button on `/cloud` to test the signed-out state.
+In Firebase mode, signed-out users can view `/` and are redirected to `/login` before they can view `/app/*` workspace pages. The login page only exposes Google account sign-in; the backend also rejects non-Google Firebase sign-in providers. Firebase persists browser sessions, so use the Sign Out button on `/app/cloud` to test the signed-out state.

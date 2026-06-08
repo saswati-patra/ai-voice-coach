@@ -22,11 +22,11 @@ type AppShellProps = {
 };
 
 const navItems = [
-  { to: "/", label: "Dashboard", icon: Gauge },
-  { to: "/study", label: "Study", icon: SquareStack },
-  { to: "/review", label: "Review", icon: BookOpen },
-  { to: "/voice", label: "Voice", icon: Mic },
-  { to: "/cloud", label: "Cloud", icon: Cloud },
+  { to: "/app", label: "Dashboard", icon: Gauge },
+  { to: "/app/study", label: "Study", icon: SquareStack },
+  { to: "/app/review", label: "Review", icon: BookOpen },
+  { to: "/app/voice", label: "Voice", icon: Mic },
+  { to: "/app/cloud", label: "Cloud", icon: Cloud },
 ];
 
 export function AppShell({ children, workspace }: AppShellProps) {
@@ -46,7 +46,7 @@ export function AppShell({ children, workspace }: AppShellProps) {
       <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur">
         <div className="mx-auto flex w-full max-w-7xl flex-col gap-3 px-4 py-3 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between gap-3">
-            <NavLink to="/" className="flex min-w-0 items-center gap-3">
+            <NavLink to="/app" className="flex min-w-0 items-center gap-3">
               <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-sm">
                 <Sparkles className="size-5" />
               </span>
@@ -86,7 +86,7 @@ export function AppShell({ children, workspace }: AppShellProps) {
                 <NavLink
                   key={item.to}
                   to={item.to}
-                  end={item.to === "/"}
+                  end={item.to === "/app"}
                   className={({ isActive }) =>
                     cn(
                       "inline-flex h-10 shrink-0 items-center gap-2 rounded-md px-3 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground",

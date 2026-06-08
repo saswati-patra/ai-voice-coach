@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  landingPrimaryCta,
   loginProviderCopy,
   loginRedirectPath,
+  legacyWorkspaceRedirectPath,
   protectedRouteRedirectPath,
   shouldShowWorkspaceNavigation,
   workspaceHeaderSubtitle,
@@ -41,13 +43,13 @@ describe("auth flow", () => {
     ).toBe(false);
   });
 
-  it("keeps signed-in Firebase users out of login", () => {
+  it("sends signed-in Firebase users from login to the workspace", () => {
     expect(
       loginRedirectPath({
         requiresFirebaseAuth: true,
         signedIn: true,
       })
-    ).toBe("/");
+    ).toBe("/app");
   });
 
   it("does not show signed-out profile text in the header", () => {
@@ -73,5 +75,24 @@ describe("auth flow", () => {
       description: "Use your Google account to continue.",
       title: "Login",
     });
+  });
+
+  it("switches landing primary CTA by signed-in state", () => {
+    expect(landingPrimaryCta({ signedIn: false })).toEqual({
+      href: "/login",
+      label: "Start studying",
+    });
+    expect(landingPrimaryCta({ signedIn: true })).toEqual({
+      href: "/app",
+      label: "Open workspace",
+    });
+  });
+
+  it("redirects old workspace paths under /app", () => {
+    expect(legacyWorkspaceRedirectPath("/study")).toBe("/app/study");
+    expect(legacyWorkspaceRedirectPath("/review")).toBe("/app/review");
+    expect(legacyWorkspaceRedirectPath("/voice")).toBe("/app/voice");
+    expect(legacyWorkspaceRedirectPath("/cloud")).toBe("/app/cloud");
+    expect(legacyWorkspaceRedirectPath("/app")).toBeNull();
   });
 });
