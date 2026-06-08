@@ -1,5 +1,5 @@
-from datetime import UTC, datetime
 from collections.abc import AsyncIterator
+from datetime import UTC, datetime
 
 from ai_voice_coach.application.ports import (
     DocumentIngestionGateway,
@@ -140,7 +140,10 @@ class UploadStudyMaterialDocument:
         )
         draft = StudyMaterialDraft(
             title=title or document.original_filename,
-            source_type=_source_type_for_document(document.content_type, document.original_filename),
+            source_type=_source_type_for_document(
+                document.content_type,
+                document.original_filename,
+            ),
             storage_path=document.storage_path,
             storage_bucket=document.storage_bucket,
             original_filename=document.original_filename,

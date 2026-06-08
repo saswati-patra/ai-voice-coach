@@ -11,6 +11,7 @@ gcloud version
 tofu version
 docker --version
 uv --version
+make --version
 ```
 
 Install OpenTofu if needed:
@@ -182,7 +183,7 @@ gh run watch
 
 The workflow:
 
-- Runs backend tests and a frontend build check.
+- Runs backend and frontend lint, format, test, and build checks.
 - Builds and pushes the backend image to Artifact Registry.
 - Deploys the backend to Cloud Run with Firebase auth and Google Cloud mode on.
 - Uses the Cloud Run URL to build the hosted React frontend.
@@ -252,21 +253,20 @@ Install and build:
 
 ```bash
 npm install
-npm run build
+cd ..
+make frontend-check
 ```
 
 ## 11. Verify Backend Locally
 
 ```bash
-cd backend
-uv sync
-uv run pytest
+make backend-check
 ```
 
 Expected:
 
 ```text
-60 passed
+Ruff checks pass and pytest reports all tests passing.
 ```
 
 Verify config:

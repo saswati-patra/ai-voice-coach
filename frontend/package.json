@@ -6,6 +6,11 @@
   "scripts": {
     "dev": "vite --host 0.0.0.0",
     "build": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.node.json && vite build",
+    "check": "npm run lint && npm run format:check && npm test && npm run build",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint \"src/**/*.{ts,tsx}\" vite.config.ts",
+    "lint:fix": "eslint \"src/**/*.{ts,tsx}\" vite.config.ts --fix",
     "preview": "vite preview --host 0.0.0.0",
     "test": "vitest run"
   },
@@ -26,10 +31,18 @@
     "vite": "^7.0.0"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@types/node": "^25.9.2",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "eslint": "^10.4.1",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.2",
+    "globals": "^17.6.0",
+    "prettier": "^3.8.3",
+    "prettier-plugin-tailwindcss": "^0.8.0",
     "typescript": "^5.0.0",
+    "typescript-eslint": "^8.60.1",
     "vitest": "^4.1.8"
   }
 }

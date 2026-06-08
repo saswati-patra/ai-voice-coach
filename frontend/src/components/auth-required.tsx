@@ -27,12 +27,12 @@ export function AuthRequired({ children, workspace }: AuthRequiredProps) {
     return (
       <Card>
         <CardContent className="flex min-h-64 flex-col items-center justify-center gap-3 p-8 text-center">
-          <div className="flex size-11 items-center justify-center rounded-lg bg-accent text-accent-foreground">
+          <div className="bg-accent text-accent-foreground flex size-11 items-center justify-center rounded-lg">
             <ShieldCheck className="size-5" />
           </div>
           <div>
             <h1 className="text-xl font-semibold tracking-normal">Checking identity</h1>
-            <p className="mt-2 text-sm text-muted-foreground">Preparing your local session.</p>
+            <p className="text-muted-foreground mt-2 text-sm">Preparing your local session.</p>
           </div>
         </CardContent>
       </Card>

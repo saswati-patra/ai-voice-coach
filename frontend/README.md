@@ -87,6 +87,18 @@ npm run dev
 
 Open <http://localhost:5173>.
 
+## Quality Checks
+
+From the repo root:
+
+```bash
+make frontend-check
+make frontend-format
+```
+
+`make frontend-check` runs ESLint, Prettier checks, Vitest, and the production
+build. `make frontend-format` applies ESLint fixes and Prettier formatting.
+
 ## Production Build
 
 ```bash

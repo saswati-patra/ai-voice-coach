@@ -77,11 +77,14 @@ def test_live_server_message_translates_text_audio_and_transcript() -> None:
     assert events[0].type == "session.ready"
     assert VoiceEvent(type="transcript.partial", payload={"text": "learner answer"}) in events
     assert VoiceEvent(type="coach.message", payload={"text": "Good start."}) in events
-    assert VoiceEvent(
-        type="audio.chunk",
-        payload={
-            "data": b64encode(b"audio-response").decode("ascii"),
-            "mime_type": "audio/pcm;rate=24000",
-        },
-    ) in events
+    assert (
+        VoiceEvent(
+            type="audio.chunk",
+            payload={
+                "data": b64encode(b"audio-response").decode("ascii"),
+                "mime_type": "audio/pcm;rate=24000",
+            },
+        )
+        in events
+    )
     assert events[-1].type == "turn.complete"

@@ -59,22 +59,25 @@ export function ReviewPage({ workspace }: ReviewPageProps) {
               <Card key={status}>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <StatusIcon className="size-4 text-primary" />
+                    <StatusIcon className="text-primary size-4" />
                     {statusCopy[status].label}
                   </CardTitle>
-                  <p className="text-sm text-muted-foreground">{statusCopy[status].description}</p>
+                  <p className="text-muted-foreground text-sm">{statusCopy[status].description}</p>
                 </CardHeader>
                 <CardContent>
                   {grouped[status].length ? (
                     <div className="flex flex-wrap gap-2">
                       {grouped[status].map((item) => (
-                        <Badge key={item.id} variant={status === "mastered" ? "success" : "secondary"}>
+                        <Badge
+                          key={item.id}
+                          variant={status === "mastered" ? "success" : "secondary"}
+                        >
                           {item.concept}
                         </Badge>
                       ))}
                     </div>
                   ) : (
-                    <p className="text-sm text-muted-foreground">No concepts in this lane.</p>
+                    <p className="text-muted-foreground text-sm">No concepts in this lane.</p>
                   )}
                 </CardContent>
               </Card>

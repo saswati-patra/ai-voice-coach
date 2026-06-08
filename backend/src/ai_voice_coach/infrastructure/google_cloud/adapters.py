@@ -1,5 +1,5 @@
-from collections.abc import AsyncIterator
 import asyncio
+from collections.abc import AsyncIterator
 from pathlib import PurePath
 from uuid import uuid4
 
@@ -10,6 +10,7 @@ from ai_voice_coach.application.ports import (
     StudyMaterialStore,
     VoiceSessionGateway,
 )
+from ai_voice_coach.config import Settings
 from ai_voice_coach.domain.review_items import ReviewItem
 from ai_voice_coach.domain.study_materials import (
     DocumentIngestionResult,
@@ -19,7 +20,6 @@ from ai_voice_coach.domain.study_materials import (
     StudyMaterialIngestionUpdate,
 )
 from ai_voice_coach.domain.voice_sessions import VoiceEvent
-from ai_voice_coach.config import Settings
 from ai_voice_coach.infrastructure.google_cloud.clients import GoogleCloudClients
 from ai_voice_coach.infrastructure.google_cloud.document_ingestion import (
     build_document_ingestion_config,
@@ -42,8 +42,10 @@ class GoogleCloudStudyMaterialStore(StudyMaterialStore):
 
     async def create(self, user_id: str, material: StudyMaterialDraft) -> StudyMaterial:
         saved = StudyMaterial(user_id=user_id, **material.model_dump())
-        await self._study_materials_collection(user_id).document(saved.id).set(
-            saved.model_dump(mode="python")
+        await (
+            self._study_materials_collection(user_id)
+            .document(saved.id)
+            .set(saved.model_dump(mode="python"))
         )
         return saved
 
@@ -115,8 +117,7 @@ class GoogleCloudStudyMaterialDocumentStore(StudyMaterialDocumentStore):
 
         safe_filename = _safe_filename(filename)
         storage_path = (
-            f"users/{_safe_path_segment(user_id)}/study_materials/uploads/"
-            f"{uuid4()}-{safe_filename}"
+            f"users/{_safe_path_segment(user_id)}/study_materials/uploads/{uuid4()}-{safe_filename}"
         )
         blob = self._clients.storage.bucket(bucket_name).blob(storage_path)
 
@@ -162,15 +163,17 @@ class GoogleCloudLearningMemoryStore(LearningMemoryStore):
     async def create_review_items(self, user_id: str, concepts: list[str]) -> list[ReviewItem]:
         items = [ReviewItem(user_id=user_id, concept=concept) for concept in concepts]
         for item in items:
-            await self._review_items_collection(user_id).document(item.id).set(
-                item.model_dump(mode="python")
+            await (
+                self._review_items_collection(user_id)
+                .document(item.id)
+                .set(item.model_dump(mode="python"))
             )
 
         return items
 
     def _review_items_collection(self, user_id: str):
-        return self._clients.firestore.collection("users").document(user_id).collection(
-            "review_items"
+        return (
+            self._clients.firestore.collection("users").document(user_id).collection("review_items")
         )
 
 

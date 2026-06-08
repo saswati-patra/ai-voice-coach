@@ -20,9 +20,9 @@ const firebaseConfig = {
 
 export const firebaseConfigured = Boolean(
   firebaseConfig.apiKey &&
-    firebaseConfig.authDomain &&
-    firebaseConfig.projectId &&
-    firebaseConfig.appId
+  firebaseConfig.authDomain &&
+  firebaseConfig.projectId &&
+  firebaseConfig.appId
 );
 
 export const firebaseApp: FirebaseApp | null = firebaseConfigured

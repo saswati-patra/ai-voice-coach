@@ -33,7 +33,9 @@ export function StudyPage({ workspace }: StudyPageProps) {
       <Card>
         <CardHeader>
           <CardTitle>Upload Material</CardTitle>
-          <p className="text-sm text-muted-foreground">Attach a PDF or text source for the current workspace.</p>
+          <p className="text-muted-foreground text-sm">
+            Attach a PDF or text source for the current workspace.
+          </p>
         </CardHeader>
         <CardContent>
           <div className="grid gap-3 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)_auto]">
@@ -54,11 +56,17 @@ export function StudyPage({ workspace }: StudyPageProps) {
               disabled={protectedDisabled || !study.selectedFile}
               className="lg:min-w-32"
             >
-              {loading ? <Loader2 className="size-4 animate-spin" /> : <UploadCloud className="size-4" />}
+              {loading ? (
+                <Loader2 className="size-4 animate-spin" />
+              ) : (
+                <UploadCloud className="size-4" />
+              )}
               Upload
             </Button>
           </div>
-          {auth.message ? <p className="mt-3 text-sm text-muted-foreground">{auth.message}</p> : null}
+          {auth.message ? (
+            <p className="text-muted-foreground mt-3 text-sm">{auth.message}</p>
+          ) : null}
         </CardContent>
       </Card>
 
@@ -70,8 +78,9 @@ export function StudyPage({ workspace }: StudyPageProps) {
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <CardTitle className="truncate">{material.title}</CardTitle>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      {material.original_filename || material.source_type} / {formatBytes(material.size_bytes)}
+                    <p className="text-muted-foreground mt-1 text-xs">
+                      {material.original_filename || material.source_type} /{" "}
+                      {formatBytes(material.size_bytes)}
                     </p>
                   </div>
                   <IngestionBadge status={material.ingestion_status} />
@@ -79,9 +88,11 @@ export function StudyPage({ workspace }: StudyPageProps) {
               </CardHeader>
               <CardContent className="flex flex-1 flex-col gap-4">
                 {material.summary ? (
-                  <p className="line-clamp-4 text-sm leading-6 text-muted-foreground">{material.summary}</p>
+                  <p className="text-muted-foreground line-clamp-4 text-sm leading-6">
+                    {material.summary}
+                  </p>
                 ) : (
-                  <p className="text-sm leading-6 text-muted-foreground">
+                  <p className="text-muted-foreground text-sm leading-6">
                     Summary and concepts are pending.
                   </p>
                 )}

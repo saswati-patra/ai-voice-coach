@@ -55,7 +55,8 @@ const cloudProof = [
 ];
 
 export function LandingPage({ workspace }: LandingPageProps) {
-  const workspaceAvailable = !workspace.auth.requiresFirebaseAuth || Boolean(workspace.auth.authUser);
+  const workspaceAvailable =
+    !workspace.auth.requiresFirebaseAuth || Boolean(workspace.auth.authUser);
   const primaryCta = landingPrimaryCta({ signedIn: workspaceAvailable });
 
   return (
@@ -80,8 +81,11 @@ function HeroSection({ primaryCta }: CtaProps) {
 
   return (
     <section className="relative isolate overflow-hidden bg-[#08111f] text-white">
-      <div className="pointer-events-none absolute inset-0 landing-hero-gradient" aria-hidden="true" />
-      <div className="relative mx-auto flex w-full max-w-7xl flex-col px-4 pb-4 pt-5 sm:px-6 lg:min-h-[88svh] lg:px-8 lg:pb-8">
+      <div
+        className="landing-hero-gradient pointer-events-none absolute inset-0"
+        aria-hidden="true"
+      />
+      <div className="relative mx-auto flex w-full max-w-7xl flex-col px-4 pt-5 pb-4 sm:px-6 lg:min-h-[88svh] lg:px-8 lg:pb-8">
         <header className="flex items-center justify-between gap-4">
           <Link to="/" className="flex min-w-0 items-center gap-3">
             <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-teal-400 text-slate-950 shadow-lg shadow-teal-950/30">
@@ -120,22 +124,19 @@ function HeroSection({ primaryCta }: CtaProps) {
               Premium AI study studio
             </Badge>
             <h1
-              className="mt-4 max-w-3xl text-3xl font-semibold leading-tight tracking-normal text-white sm:mt-5 sm:text-5xl sm:leading-[1.04] lg:text-6xl"
+              className="mt-4 max-w-3xl text-3xl leading-tight font-semibold tracking-normal text-white sm:mt-5 sm:text-5xl sm:leading-[1.04] lg:text-6xl"
               data-testid="landing-hero-title"
             >
               Practice out loud with a coach built from your notes.
             </h1>
             <p className="mt-4 max-w-2xl text-sm leading-6 text-slate-300 sm:mt-5 sm:text-lg sm:leading-7">
-              Upload a study document, generate active recall prompts, and run a live voice
-              session that helps you explain the material before the exam does.
+              Upload a study document, generate active recall prompts, and run a live voice session
+              that helps you explain the material before the exam does.
             </p>
             <div className="mt-5 grid gap-3 sm:mt-7 sm:flex sm:flex-wrap">
               <Link
                 to={primaryCta.href}
-                className={cn(
-                  buttonVariants({ size: "lg" }),
-                  "landing-button-primary"
-                )}
+                className={cn(buttonVariants({ size: "lg" }), "landing-button-primary")}
               >
                 <PrimaryIcon className="size-4" />
                 {primaryCta.label}
@@ -169,7 +170,10 @@ function HeroSection({ primaryCta }: CtaProps) {
 
 function HeroPracticePanel() {
   return (
-    <div className="relative mx-auto w-full max-w-sm lg:translate-y-6" data-testid="landing-hero-panel">
+    <div
+      className="relative mx-auto w-full max-w-sm lg:translate-y-6"
+      data-testid="landing-hero-panel"
+    >
       <div className="rounded-lg border border-white/15 bg-[#111827]/95 p-3 shadow-2xl shadow-black/35 sm:p-4">
         <div className="flex items-center justify-between border-b border-white/10 pb-3">
           <div className="flex items-center gap-2">
@@ -193,7 +197,10 @@ function HeroPracticePanel() {
               Memory consolidation / spaced review
             </p>
           </div>
-          <div className="grid h-12 grid-cols-12 items-end gap-1 rounded-lg bg-[#0b1220] p-3 sm:h-14" aria-hidden="true">
+          <div
+            className="grid h-12 grid-cols-12 items-end gap-1 rounded-lg bg-[#0b1220] p-3 sm:h-14"
+            aria-hidden="true"
+          >
             {[42, 68, 36, 78, 48, 88, 56, 72, 34, 64, 46, 82].map((height, index) => (
               <span
                 key={`${height}-${index}`}
@@ -210,7 +217,11 @@ function HeroPracticePanel() {
 
 function WorkflowSection() {
   return (
-    <section id="workflow" className="bg-[#f7faf9] px-4 py-16 sm:px-6 lg:px-8" data-testid="landing-workflow">
+    <section
+      id="workflow"
+      className="bg-[#f7faf9] px-4 py-16 sm:px-6 lg:px-8"
+      data-testid="landing-workflow"
+    >
       <div className="mx-auto max-w-7xl">
         <SectionHeading
           eyebrow="Workflow"
@@ -219,14 +230,19 @@ function WorkflowSection() {
         />
         <div className="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           {workflowSteps.map((step, index) => (
-            <article key={step.title} className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+            <article
+              key={step.title}
+              className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm"
+            >
               <div className="flex items-center justify-between gap-3">
                 <span className="flex size-11 items-center justify-center rounded-lg bg-[#e5f7f3] text-teal-800">
                   <step.icon className="size-5" />
                 </span>
                 <span className="text-sm font-semibold text-slate-400">0{index + 1}</span>
               </div>
-              <h3 className="mt-5 text-lg font-semibold tracking-normal text-slate-950">{step.title}</h3>
+              <h3 className="mt-5 text-lg font-semibold tracking-normal text-slate-950">
+                {step.title}
+              </h3>
               <p className="mt-3 text-sm leading-6 text-slate-600">{step.description}</p>
             </article>
           ))}
@@ -269,11 +285,16 @@ function ProductPreviewSection() {
               <div className="rounded-lg border border-slate-200 bg-[#fcf7ed] p-4 sm:col-span-2">
                 <p className="text-sm font-semibold text-slate-950">Concept radar</p>
                 <div className="mt-3 flex flex-wrap gap-2">
-                  {["retrieval practice", "memory consolidation", "spaced review"].map((concept) => (
-                    <span key={concept} className="rounded-md bg-white px-2.5 py-1 text-xs text-slate-700">
-                      {concept}
-                    </span>
-                  ))}
+                  {["retrieval practice", "memory consolidation", "spaced review"].map(
+                    (concept) => (
+                      <span
+                        key={concept}
+                        className="rounded-md bg-white px-2.5 py-1 text-xs text-slate-700"
+                      >
+                        {concept}
+                      </span>
+                    )
+                  )}
                 </div>
               </div>
               <div className="rounded-lg bg-[#08111f] p-4 text-white sm:col-span-2">
@@ -281,14 +302,19 @@ function ProductPreviewSection() {
                   <p className="text-sm font-semibold">Live coach</p>
                   <span className="text-xs text-teal-200">connected</span>
                 </div>
-                <div className="mt-4 grid h-12 grid-cols-[repeat(16,minmax(0,1fr))] items-end gap-1" aria-hidden="true">
-                  {[36, 58, 44, 72, 38, 82, 52, 70, 34, 62, 46, 78, 40, 66, 50, 74].map((height, index) => (
-                    <span
-                      key={`${height}-${index}`}
-                      className="rounded-sm bg-teal-300"
-                      style={{ height: `${height}%` }}
-                    />
-                  ))}
+                <div
+                  className="mt-4 grid h-12 grid-cols-[repeat(16,minmax(0,1fr))] items-end gap-1"
+                  aria-hidden="true"
+                >
+                  {[36, 58, 44, 72, 38, 82, 52, 70, 34, 62, 46, 78, 40, 66, 50, 74].map(
+                    (height, index) => (
+                      <span
+                        key={`${height}-${index}`}
+                        className="rounded-sm bg-teal-300"
+                        style={{ height: `${height}%` }}
+                      />
+                    )
+                  )}
                 </div>
               </div>
             </div>
@@ -311,8 +337,13 @@ function CloudProofSection() {
           />
           <div className="grid gap-4 sm:grid-cols-2">
             {cloudProof.map((item) => (
-              <article key={item.label} className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-                <p className="text-xs font-semibold uppercase tracking-normal text-teal-700">{item.label}</p>
+              <article
+                key={item.label}
+                className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm"
+              >
+                <p className="text-xs font-semibold tracking-normal text-teal-700 uppercase">
+                  {item.label}
+                </p>
                 <p className="mt-3 text-sm leading-6 text-slate-700">{item.value}</p>
               </article>
             ))}
@@ -339,7 +370,10 @@ function FinalCtaSection({ primaryCta }: CtaProps) {
           Start with the product flow, then keep iterating toward a deployable AI learning SaaS.
         </p>
         <div className="mt-7 flex justify-center">
-          <Link to={primaryCta.href} className={cn(buttonVariants({ size: "lg" }), "landing-button-final")}>
+          <Link
+            to={primaryCta.href}
+            className={cn(buttonVariants({ size: "lg" }), "landing-button-final")}
+          >
             <PrimaryIcon className="size-4" />
             {primaryCta.label}
             <ArrowRight className="size-4" />
@@ -370,8 +404,8 @@ type SectionHeadingProps = {
 function SectionHeading({ description, eyebrow, title }: SectionHeadingProps) {
   return (
     <div className="max-w-3xl">
-      <p className="text-sm font-semibold uppercase tracking-normal text-teal-700">{eyebrow}</p>
-      <h2 className="mt-3 text-3xl font-semibold leading-tight tracking-normal text-slate-950 sm:text-4xl">
+      <p className="text-sm font-semibold tracking-normal text-teal-700 uppercase">{eyebrow}</p>
+      <h2 className="mt-3 text-3xl leading-tight font-semibold tracking-normal text-slate-950 sm:text-4xl">
         {title}
       </h2>
       <p className="mt-4 text-base leading-7 text-slate-600">{description}</p>
@@ -392,7 +426,15 @@ function ProofPill({ icon: Icon, label }: { icon: IconType; label: string }) {
   );
 }
 
-function PreviewMetric({ icon: Icon, label, value }: { icon: IconType; label: string; value: string }) {
+function PreviewMetric({
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon: IconType;
+  label: string;
+  value: string;
+}) {
   return (
     <div className="rounded-lg border border-slate-200 bg-white p-4">
       <div className="flex items-center justify-between">

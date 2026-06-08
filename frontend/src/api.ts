@@ -67,9 +67,7 @@ async function apiFetch<T>(path: string, init: RequestInit = {}): Promise<T> {
   if (!response.ok) {
     const detail = await response.json().catch(() => null);
     const message =
-      typeof detail?.detail === "string"
-        ? detail.detail
-        : `Request failed with ${response.status}`;
+      typeof detail?.detail === "string" ? detail.detail : `Request failed with ${response.status}`;
     throw new ApiError(message, response.status);
   }
 

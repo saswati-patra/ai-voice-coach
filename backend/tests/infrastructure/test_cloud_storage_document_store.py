@@ -2,7 +2,9 @@ import pytest
 
 from ai_voice_coach.config import Settings
 from ai_voice_coach.domain.study_materials import StudyMaterial
-from ai_voice_coach.infrastructure.google_cloud.adapters import GoogleCloudStudyMaterialDocumentStore
+from ai_voice_coach.infrastructure.google_cloud.adapters import (
+    GoogleCloudStudyMaterialDocumentStore,
+)
 
 
 class FakeBlob:

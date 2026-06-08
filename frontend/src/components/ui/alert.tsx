@@ -26,7 +26,9 @@ function Alert({
 }
 
 function AlertTitle({ className, ...props }: React.HTMLAttributes<HTMLHeadingElement>) {
-  return <h5 className={cn("mb-1 font-medium leading-none tracking-normal", className)} {...props} />;
+  return (
+    <h5 className={cn("mb-1 leading-none font-medium tracking-normal", className)} {...props} />
+  );
 }
 
 function AlertDescription({ className, ...props }: React.HTMLAttributes<HTMLParagraphElement>) {

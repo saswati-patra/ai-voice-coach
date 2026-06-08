@@ -23,6 +23,18 @@ uv run uvicorn ai_voice_coach.main:app --reload --app-dir src
 
 The backend serves the built React frontend from `../frontend/dist` when the frontend has been built.
 
+## Quality Checks
+
+From the repo root:
+
+```bash
+make backend-check
+make backend-format
+```
+
+`make backend-check` runs Ruff linting, Ruff format checks, and pytest. `make
+backend-format` applies Ruff fixes and formatting.
+
 ## Configuration
 
 Copy `.env.example` to `.env` for local overrides. Do not commit `.env` or Google Cloud credential files.

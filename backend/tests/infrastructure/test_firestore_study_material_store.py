@@ -139,7 +139,10 @@ async def test_google_cloud_learning_memory_store_creates_and_lists_review_items
     clients = FakeClients()
     store = GoogleCloudLearningMemoryStore(clients)
 
-    created = await store.create_review_items("dev-user", ["photosynthesis", "cellular respiration"])
+    created = await store.create_review_items(
+        "dev-user",
+        ["photosynthesis", "cellular respiration"],
+    )
     listed = await store.list_review_items("dev-user")
 
     assert listed == created

@@ -43,7 +43,10 @@ export function protectedRouteRedirectPath({
   return "/login";
 }
 
-export function loginRedirectPath({ requiresFirebaseAuth, signedIn }: AuthModeState): string | null {
+export function loginRedirectPath({
+  requiresFirebaseAuth,
+  signedIn,
+}: AuthModeState): string | null {
   if (signedIn) {
     return "/app";
   }

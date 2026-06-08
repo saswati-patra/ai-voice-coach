@@ -1,4 +1,13 @@
-import { CheckCircle2, Cloud, Info, KeyRound, LogOut, Plug, Server, ShieldCheck } from "lucide-react";
+import {
+  CheckCircle2,
+  Cloud,
+  Info,
+  KeyRound,
+  LogOut,
+  Plug,
+  Server,
+  ShieldCheck,
+} from "lucide-react";
 
 import { PageHeader } from "@/components/page-header";
 import {
@@ -51,7 +60,7 @@ export function CloudPage({ workspace }: CloudPageProps) {
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <CardTitle>Account</CardTitle>
-                  <p className="mt-1 text-sm text-muted-foreground">
+                  <p className="text-muted-foreground mt-1 text-sm">
                     Local identity for development. Signed requests in cloud mode.
                   </p>
                 </div>
@@ -62,8 +71,12 @@ export function CloudPage({ workspace }: CloudPageProps) {
               {auth.requiresFirebaseAuth && auth.authUser ? (
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div className="min-w-0">
-                    <p className="truncate text-sm font-semibold">{auth.authUser.email || "Signed-in user"}</p>
-                    <p className="mt-1 break-all text-xs text-muted-foreground">{auth.authUser.uid}</p>
+                    <p className="truncate text-sm font-semibold">
+                      {auth.authUser.email || "Signed-in user"}
+                    </p>
+                    <p className="text-muted-foreground mt-1 text-xs break-all">
+                      {auth.authUser.uid}
+                    </p>
                   </div>
                   <Button variant="outline" onClick={auth.signOut}>
                     <LogOut className="size-4" />
@@ -71,17 +84,19 @@ export function CloudPage({ workspace }: CloudPageProps) {
                   </Button>
                 </div>
               ) : (
-                <div className="flex items-start gap-3 rounded-lg border border-border bg-muted/50 p-4">
-                  <KeyRound className="mt-0.5 size-5 text-primary" />
+                <div className="border-border bg-muted/50 flex items-start gap-3 rounded-lg border p-4">
+                  <KeyRound className="text-primary mt-0.5 size-5" />
                   <div>
                     <p className="text-sm font-semibold">Dev auth is active</p>
-                    <p className="mt-1 text-sm text-muted-foreground">
+                    <p className="text-muted-foreground mt-1 text-sm">
                       Protected routes use the local fixed user in dev mode.
                     </p>
                   </div>
                 </div>
               )}
-              {auth.message ? <p className="mt-4 text-sm text-muted-foreground">{auth.message}</p> : null}
+              {auth.message ? (
+                <p className="text-muted-foreground mt-4 text-sm">{auth.message}</p>
+              ) : null}
             </CardContent>
           </Card>
         </BaseTabsPanel>
@@ -102,7 +117,9 @@ export function CloudPage({ workspace }: CloudPageProps) {
           <Card>
             <CardHeader>
               <CardTitle>Manual Cloud Flow</CardTitle>
-              <p className="text-sm text-muted-foreground">Deployment checkpoints for the learning environment.</p>
+              <p className="text-muted-foreground text-sm">
+                Deployment checkpoints for the learning environment.
+              </p>
             </CardHeader>
             <CardContent>
               <ol className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
@@ -112,11 +129,11 @@ export function CloudPage({ workspace }: CloudPageProps) {
                   "Sign in from the hosted frontend.",
                   "Upload, ingest, review, then test voice.",
                 ].map((item, index) => (
-                  <li key={item} className="rounded-md bg-muted/60 p-4">
-                    <span className="mb-3 flex size-8 items-center justify-center rounded-md bg-primary text-sm font-semibold text-primary-foreground">
+                  <li key={item} className="bg-muted/60 rounded-md p-4">
+                    <span className="bg-primary text-primary-foreground mb-3 flex size-8 items-center justify-center rounded-md text-sm font-semibold">
                       {index + 1}
                     </span>
-                    <p className="text-sm leading-6 text-muted-foreground">{item}</p>
+                    <p className="text-muted-foreground text-sm leading-6">{item}</p>
                   </li>
                 ))}
               </ol>
@@ -138,12 +155,14 @@ function TargetCard({ icon: Icon, label, value }: TargetCardProps) {
   return (
     <Card>
       <CardContent className="flex items-start gap-4 p-5">
-        <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-accent text-accent-foreground">
+        <div className="bg-accent text-accent-foreground flex size-10 shrink-0 items-center justify-center rounded-lg">
           <Icon className="size-5" />
         </div>
         <div className="min-w-0">
-          <p className="text-xs font-medium uppercase tracking-normal text-muted-foreground">{label}</p>
-          <p className="mt-2 break-all text-sm font-semibold">{value}</p>
+          <p className="text-muted-foreground text-xs font-medium tracking-normal uppercase">
+            {label}
+          </p>
+          <p className="mt-2 text-sm font-semibold break-all">{value}</p>
         </div>
       </CardContent>
     </Card>

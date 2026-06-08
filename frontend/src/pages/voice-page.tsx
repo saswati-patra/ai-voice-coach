@@ -20,7 +20,11 @@ export function VoicePage({ workspace }: VoicePageProps) {
         eyebrow="Voice Coach"
         title="Talk through the material"
         description="A focused session surface for spoken study practice."
-        action={<Badge variant={voice.status === "recording" ? "success" : "secondary"}>{voice.status}</Badge>}
+        action={
+          <Badge variant={voice.status === "recording" ? "success" : "secondary"}>
+            {voice.status}
+          </Badge>
+        }
       />
 
       {!auth.canUseProtectedApi ? (
@@ -33,10 +37,10 @@ export function VoicePage({ workspace }: VoicePageProps) {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Volume2 className="size-4 text-primary" />
+              <Volume2 className="text-primary size-4" />
               Session Controls
             </CardTitle>
-            <p className="text-sm text-muted-foreground">Realtime voice session state.</p>
+            <p className="text-muted-foreground text-sm">Realtime voice session state.</p>
           </CardHeader>
           <CardContent className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
             <Button
@@ -68,13 +72,15 @@ export function VoicePage({ workspace }: VoicePageProps) {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Terminal className="size-4 text-primary" />
+              <Terminal className="text-primary size-4" />
               Session Log
             </CardTitle>
-            <p className="text-sm text-muted-foreground">Coach, transcript, turn, audio, and error events.</p>
+            <p className="text-muted-foreground text-sm">
+              Coach, transcript, turn, audio, and error events.
+            </p>
           </CardHeader>
           <CardContent>
-            <pre className="min-h-80 overflow-auto rounded-lg border border-border bg-slate-950 p-4 text-xs leading-6 text-slate-100">
+            <pre className="border-border min-h-80 overflow-auto rounded-lg border bg-slate-950 p-4 text-xs leading-6 text-slate-100">
               {voice.log.length ? voice.log.join("\n") : "Connect to start a voice session."}
             </pre>
           </CardContent>

@@ -31,14 +31,14 @@ from ai_voice_coach.infrastructure.auth import DevAuthVerifier, FirebaseAuthVeri
 from ai_voice_coach.infrastructure.google_cloud.adapters import (
     GeminiDocumentIngestionGateway,
     GeminiLiveVoiceSessionGateway,
-    GoogleCloudStudyMaterialDocumentStore,
     GoogleCloudLearningMemoryStore,
+    GoogleCloudStudyMaterialDocumentStore,
     GoogleCloudStudyMaterialStore,
 )
 from ai_voice_coach.infrastructure.google_cloud.clients import GoogleCloudClients
 from ai_voice_coach.infrastructure.memory.adapters import (
-    InMemoryStudyMaterialDocumentStore,
     InMemoryLearningMemoryStore,
+    InMemoryStudyMaterialDocumentStore,
     InMemoryStudyMaterialStore,
     StubDocumentIngestionGateway,
     StubVoiceSessionGateway,

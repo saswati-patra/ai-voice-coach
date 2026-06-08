@@ -5,7 +5,6 @@ from google.genai import types
 
 from ai_voice_coach.domain.study_materials import DocumentIngestionResult, StudyMaterial
 
-
 DOCUMENT_INGESTION_RESPONSE_SCHEMA = {
     "type": "OBJECT",
     "properties": {

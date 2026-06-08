@@ -16,6 +16,20 @@ The app runs locally in stub mode by default. Real Google Cloud calls stay disab
 
 For the step-by-step cloud setup runbook, see [docs/RUNNING.md](docs/RUNNING.md).
 
+## Quality Commands
+
+From the repo root:
+
+```bash
+make help
+make check
+make format
+```
+
+`make check` runs backend Ruff linting, Ruff format checks, pytest, frontend ESLint,
+Prettier checks, Vitest, and the Vite production build. `make format` applies Ruff,
+ESLint, and Prettier fixes.
+
 ## Backend
 
 ```bash

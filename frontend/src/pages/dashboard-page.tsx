@@ -15,7 +15,9 @@ type DashboardPageProps = {
 
 export function DashboardPage({ workspace }: DashboardPageProps) {
   const { auth, review, study, voice } = workspace;
-  const ingestedCount = study.materials.filter((material) => material.ingestion_status === "completed").length;
+  const ingestedCount = study.materials.filter(
+    (material) => material.ingestion_status === "completed"
+  ).length;
   const conceptPreview = Array.from(
     new Set(
       study.materials
@@ -40,8 +42,18 @@ export function DashboardPage({ workspace }: DashboardPageProps) {
       />
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <MetricCard icon={FileText} label="Materials" value={study.materials.length} detail={`${ingestedCount} ingested`} />
-        <MetricCard icon={BookOpen} label="Review Items" value={review.items.length} detail="Generated from study docs" />
+        <MetricCard
+          icon={FileText}
+          label="Materials"
+          value={study.materials.length}
+          detail={`${ingestedCount} ingested`}
+        />
+        <MetricCard
+          icon={BookOpen}
+          label="Review Items"
+          value={review.items.length}
+          detail="Generated from study docs"
+        />
         <MetricCard icon={Mic} label="Voice" value={voice.status} detail="Live session harness" />
         <MetricCard
           icon={Cloud}
@@ -56,21 +68,28 @@ export function DashboardPage({ workspace }: DashboardPageProps) {
           <CardHeader className="flex-row items-center justify-between space-y-0">
             <div>
               <CardTitle>Recent Materials</CardTitle>
-              <p className="mt-1 text-sm text-muted-foreground">Latest source files in this workspace.</p>
+              <p className="text-muted-foreground mt-1 text-sm">
+                Latest source files in this workspace.
+              </p>
             </div>
-            <Link className={cn(buttonVariants({ variant: "outline", size: "sm" }))} to="/app/study">
+            <Link
+              className={cn(buttonVariants({ variant: "outline", size: "sm" }))}
+              to="/app/study"
+            >
               Open
               <ArrowRight className="size-4" />
             </Link>
           </CardHeader>
           <CardContent>
             {recentMaterials.length ? (
-              <div className="divide-y divide-border rounded-lg border border-border">
+              <div className="divide-border border-border divide-y rounded-lg border">
                 {recentMaterials.map((material) => (
                   <div key={material.id} className="flex items-start justify-between gap-4 p-4">
                     <div className="min-w-0">
-                      <h3 className="truncate text-sm font-semibold tracking-normal">{material.title}</h3>
-                      <p className="mt-1 text-xs text-muted-foreground">
+                      <h3 className="truncate text-sm font-semibold tracking-normal">
+                        {material.title}
+                      </h3>
+                      <p className="text-muted-foreground mt-1 text-xs">
                         {material.source_type} / {material.ingestion_status.replace("_", " ")}
                       </p>
                     </div>
@@ -91,7 +110,7 @@ export function DashboardPage({ workspace }: DashboardPageProps) {
         <Card>
           <CardHeader>
             <CardTitle>Concept Radar</CardTitle>
-            <p className="text-sm text-muted-foreground">Concepts appear here after ingestion.</p>
+            <p className="text-muted-foreground text-sm">Concepts appear here after ingestion.</p>
           </CardHeader>
           <CardContent>
             {conceptPreview.length ? (
@@ -127,13 +146,15 @@ function MetricCard({ icon: Icon, label, value, detail }: MetricCardProps) {
   return (
     <Card>
       <CardContent className="flex items-center gap-4 p-5">
-        <div className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-accent text-accent-foreground">
+        <div className="bg-accent text-accent-foreground flex size-11 shrink-0 items-center justify-center rounded-lg">
           <Icon className="size-5" />
         </div>
         <div className="min-w-0">
-          <p className="text-xs font-medium uppercase tracking-normal text-muted-foreground">{label}</p>
+          <p className="text-muted-foreground text-xs font-medium tracking-normal uppercase">
+            {label}
+          </p>
           <p className="mt-1 truncate text-xl font-semibold tracking-normal">{value}</p>
-          <p className="mt-1 truncate text-xs text-muted-foreground">{detail}</p>
+          <p className="text-muted-foreground mt-1 truncate text-xs">{detail}</p>
         </div>
       </CardContent>
     </Card>

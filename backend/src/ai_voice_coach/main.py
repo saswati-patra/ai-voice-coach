@@ -4,10 +4,10 @@ from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel
 
 from ai_voice_coach.api.v1.router import router as api_v1_router
 from ai_voice_coach.config import Settings, get_settings
-from pydantic import BaseModel
 
 
 class HealthResponse(BaseModel):

@@ -1,8 +1,17 @@
 import asyncio
 from collections.abc import AsyncIterator
 
-from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, WebSocket, status
-from fastapi import WebSocketDisconnect
+from fastapi import (
+    APIRouter,
+    Depends,
+    File,
+    Form,
+    HTTPException,
+    UploadFile,
+    WebSocket,
+    WebSocketDisconnect,
+    status,
+)
 
 from ai_voice_coach.api.v1.schemas import StudyMaterialCreateRequest, UserProfileResponse
 from ai_voice_coach.application.auth import AuthError

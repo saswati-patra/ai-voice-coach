@@ -32,25 +32,25 @@ export function LoginPage({ workspace }: LoginPageProps) {
           Account
         </Badge>
         <div>
-          <h1 className="text-3xl font-semibold tracking-normal text-foreground sm:text-4xl">
+          <h1 className="text-foreground text-3xl font-semibold tracking-normal sm:text-4xl">
             Sign in to your study workspace
           </h1>
-          <p className="mt-3 max-w-xl text-sm leading-6 text-muted-foreground">
+          <p className="text-muted-foreground mt-3 max-w-xl text-sm leading-6">
             Access study materials, review items, voice practice, and cloud settings.
           </p>
         </div>
         <div className="grid gap-3 sm:grid-cols-2">
-          <div className="rounded-lg bg-muted/70 p-4">
-            <Cloud className="mb-3 size-5 text-primary" />
+          <div className="bg-muted/70 rounded-lg p-4">
+            <Cloud className="text-primary mb-3 size-5" />
             <p className="text-sm font-semibold">Cloud identity</p>
-            <p className="mt-1 text-sm leading-6 text-muted-foreground">
+            <p className="text-muted-foreground mt-1 text-sm leading-6">
               One account for local and hosted practice.
             </p>
           </div>
-          <div className="rounded-lg bg-muted/70 p-4">
-            <ShieldCheck className="mb-3 size-5 text-primary" />
+          <div className="bg-muted/70 rounded-lg p-4">
+            <ShieldCheck className="text-primary mb-3 size-5" />
             <p className="text-sm font-semibold">Session continuity</p>
-            <p className="mt-1 text-sm leading-6 text-muted-foreground">
+            <p className="text-muted-foreground mt-1 text-sm leading-6">
               Pick up where your last study session left off.
             </p>
           </div>
@@ -60,7 +60,7 @@ export function LoginPage({ workspace }: LoginPageProps) {
       <Card>
         <CardHeader>
           <CardTitle>{providerCopy.title}</CardTitle>
-          <p className="text-sm text-muted-foreground">{providerCopy.description}</p>
+          <p className="text-muted-foreground text-sm">{providerCopy.description}</p>
         </CardHeader>
         <CardContent className="space-y-4">
           {!auth.firebaseConfigured ? (
@@ -81,7 +81,7 @@ export function LoginPage({ workspace }: LoginPageProps) {
           </div>
 
           {auth.message ? (
-            <div className="flex items-start gap-2 rounded-md bg-muted/70 p-3 text-sm text-muted-foreground">
+            <div className="bg-muted/70 text-muted-foreground flex items-start gap-2 rounded-md p-3 text-sm">
               <Info className="mt-0.5 size-4 shrink-0" />
               <p>{auth.message}</p>
             </div>
