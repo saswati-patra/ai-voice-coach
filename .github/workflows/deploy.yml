@@ -152,6 +152,7 @@ jobs:
           env_vars: |-
             APP_ENV=cloud
             APP_NAME=AI Voice Coach
+            FRONTEND_BASE_URL=https://${{ env.FIREBASE_HOSTING_SITE }}.web.app
             AUTH_MODE=firebase
             DEV_USER_ID=dev-user
             GOOGLE_CLOUD_ENABLED=true
@@ -200,6 +201,8 @@ jobs:
           {
             echo "### Deployment"
             echo
-            echo "- Cloud Run: ${{ steps.deploy-backend.outputs.url }}"
-            echo "- Firebase Hosting: https://${FIREBASE_HOSTING_SITE}.web.app"
+            echo "- App: https://${FIREBASE_HOSTING_SITE}.web.app"
+            echo "- API: ${{ steps.deploy-backend.outputs.url }}"
+            echo
+            echo "Open the Firebase Hosting URL for sign-in. Cloud Run browser routes redirect there."
           } >>"${GITHUB_STEP_SUMMARY}"

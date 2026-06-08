@@ -89,6 +89,7 @@ Copy `backend/.env.example` to `backend/.env` for local backend overrides. `.env
 Key settings:
 
 - `AUTH_MODE`: `dev` by default; use `firebase` to require Firebase ID tokens
+- `FRONTEND_BASE_URL`: Firebase Hosting app URL for cloud deployments; browser routes on Cloud Run redirect there when set
 - `DEV_USER_ID`: fixed local development user, default `dev-user`
 - `GOOGLE_CLOUD_ENABLED`: keeps real Google Cloud calls disabled by default
 - `GOOGLE_CLOUD_PROJECT`: future Google Cloud project ID
@@ -166,6 +167,8 @@ tofu -chdir=infra/tofu apply
 scripts/sync-github-actions-vars.sh
 gh workflow run deploy.yml
 ```
+
+After deployment, open the Firebase Hosting URL shown in the workflow summary. Cloud Run is the backend API target; browser routes on Cloud Run redirect to Firebase Hosting when `FRONTEND_BASE_URL` is set.
 
 After apply, configure the backend and frontend with the OpenTofu outputs:
 

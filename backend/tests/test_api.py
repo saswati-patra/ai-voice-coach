@@ -23,6 +23,26 @@ def test_index_serves_voice_harness() -> None:
     assert 'id="root"' in response.text
 
 
+def test_cloud_frontend_routes_redirect_to_hosted_frontend(monkeypatch) -> None:
+    from ai_voice_coach import config
+
+    monkeypatch.setenv("FRONTEND_BASE_URL", "https://ai-voice-coach-dev.web.app")
+    config.get_settings.cache_clear()
+    client = TestClient(create_app())
+
+    root = client.get("/", follow_redirects=False)
+    login = client.get("/login", follow_redirects=False)
+    health = client.get("/health")
+
+    assert root.status_code == 307
+    assert root.headers["location"] == "https://ai-voice-coach-dev.web.app"
+    assert login.status_code == 307
+    assert login.headers["location"] == "https://ai-voice-coach-dev.web.app/login"
+    assert health.status_code == 200
+
+    config.get_settings.cache_clear()
+
+
 def test_frontend_asset_is_served_after_build() -> None:
     client = TestClient(create_app())
 

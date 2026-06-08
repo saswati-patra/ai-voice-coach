@@ -72,7 +72,7 @@ Then populate the `VITE_FIREBASE_*` values from OpenTofu outputs after apply:
 tofu -chdir=../infra/tofu output -json firebase_frontend_env
 ```
 
-Keep `VITE_API_BASE_URL` and `VITE_WS_BASE_URL` blank when running through Vite's local proxy or when the built frontend is served by FastAPI. Set them only when the frontend and backend are on different origins, such as a hosted frontend calling Cloud Run:
+Keep `VITE_API_BASE_URL` and `VITE_WS_BASE_URL` blank when running through Vite's local proxy or when the built frontend is served by FastAPI. Set them for the Firebase Hosting build so the hosted frontend calls Cloud Run:
 
 ```env
 VITE_API_BASE_URL=https://your-cloud-run-url

@@ -186,8 +186,12 @@ The workflow:
 - Runs backend and frontend lint, format, test, and build checks.
 - Builds and pushes the backend image to Artifact Registry.
 - Deploys the backend to Cloud Run with Firebase auth and Google Cloud mode on.
-- Uses the Cloud Run URL to build the hosted React frontend.
+- Sets Cloud Run `FRONTEND_BASE_URL` so browser routes redirect to Firebase Hosting.
+- Uses the Cloud Run URL as the API/WebSocket target for the hosted React frontend.
 - Deploys `frontend/dist` to Firebase Hosting.
+
+After deployment, open the Firebase Hosting URL from the workflow summary. Do not
+use the Cloud Run URL as the app URL; Cloud Run is the API endpoint.
 
 ## 9. Configure Backend Environment
 
@@ -200,6 +204,7 @@ Edit `backend/.env`:
 ```bash
 APP_ENV=local
 APP_NAME=AI Voice Coach
+FRONTEND_BASE_URL=
 AUTH_MODE=dev
 DEV_USER_ID=dev-user
 GOOGLE_CLOUD_ENABLED=true
@@ -241,7 +246,8 @@ VITE_API_BASE_URL=
 VITE_WS_BASE_URL=
 ```
 
-Use Cloud Run URLs only after the backend is deployed on a different origin:
+Use Cloud Run URLs for the hosted Firebase build after the backend is deployed
+on a different origin:
 
 ```env
 VITE_AUTH_MODE=firebase

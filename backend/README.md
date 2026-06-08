@@ -22,6 +22,8 @@ uv run uvicorn ai_voice_coach.main:app --reload --app-dir src
 ```
 
 The backend serves the built React frontend from `../frontend/dist` when the frontend has been built.
+In cloud deployments, `FRONTEND_BASE_URL` points browser-facing routes such as `/`
+and `/login` to Firebase Hosting while `/health` and `/api/*` remain on Cloud Run.
 
 ## Quality Checks
 
@@ -51,6 +53,7 @@ To test Gemini Live locally, authenticate with Google Cloud Application Default 
 ```bash
 AUTH_MODE=dev
 GOOGLE_CLOUD_ENABLED=true
+FRONTEND_BASE_URL=https://your-firebase-hosting-site.web.app
 GOOGLE_CLOUD_PROJECT=your-google-cloud-project-id
 GOOGLE_CLOUD_LOCATION=us-central1
 GOOGLE_CLOUD_STORAGE_BUCKET=your-study-materials-bucket

@@ -8,6 +8,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     app_env: str = Field(default="local", validation_alias="APP_ENV")
     app_name: str = Field(default="AI Voice Coach", validation_alias="APP_NAME")
+    frontend_base_url: str | None = Field(default=None, validation_alias="FRONTEND_BASE_URL")
     auth_mode: Literal["dev", "firebase"] = Field(default="dev", validation_alias="AUTH_MODE")
     dev_user_id: str = Field(default="dev-user", validation_alias="DEV_USER_ID")
     google_cloud_enabled: bool = Field(default=False, validation_alias="GOOGLE_CLOUD_ENABLED")
