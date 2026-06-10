@@ -34,7 +34,7 @@ export function DashboardPage({ workspace }: DashboardPageProps) {
         title="Your study loop, ready to run"
         description="Study sources, generated review work, and live practice in one focused workspace."
         action={
-          <Button variant="default" onClick={() => auth.refreshData()}>
+          <Button variant="default" onClick={() => auth.refreshData()} className="pressable">
             <Sparkles className="size-4" />
             Sync
           </Button>
@@ -64,7 +64,7 @@ export function DashboardPage({ workspace }: DashboardPageProps) {
       </section>
 
       <section className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
-        <Card>
+        <Card className="surface-card">
           <CardHeader className="flex-row items-center justify-between space-y-0">
             <div>
               <CardTitle>Recent Materials</CardTitle>
@@ -73,7 +73,7 @@ export function DashboardPage({ workspace }: DashboardPageProps) {
               </p>
             </div>
             <Link
-              className={cn(buttonVariants({ variant: "outline", size: "sm" }))}
+              className={cn(buttonVariants({ variant: "outline", size: "sm" }), "pressable")}
               to="/app/study"
             >
               Open
@@ -84,7 +84,10 @@ export function DashboardPage({ workspace }: DashboardPageProps) {
             {recentMaterials.length ? (
               <div className="divide-border border-border divide-y rounded-lg border">
                 {recentMaterials.map((material) => (
-                  <div key={material.id} className="flex items-start justify-between gap-4 p-4">
+                  <div
+                    key={material.id}
+                    className="hover:bg-muted/50 flex items-start justify-between gap-4 p-4 transition-colors duration-150 ease-out"
+                  >
                     <div className="min-w-0">
                       <h3 className="truncate text-sm font-semibold tracking-normal">
                         {material.title}
@@ -107,7 +110,7 @@ export function DashboardPage({ workspace }: DashboardPageProps) {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="surface-card">
           <CardHeader>
             <CardTitle>Concept Radar</CardTitle>
             <p className="text-muted-foreground text-sm">Concepts appear here after ingestion.</p>
@@ -144,7 +147,7 @@ type MetricCardProps = {
 
 function MetricCard({ icon: Icon, label, value, detail }: MetricCardProps) {
   return (
-    <Card>
+    <Card className="surface-card">
       <CardContent className="flex items-center gap-4 p-5">
         <div className="bg-accent text-accent-foreground flex size-11 shrink-0 items-center justify-center rounded-lg">
           <Icon className="size-5" />
@@ -153,8 +156,10 @@ function MetricCard({ icon: Icon, label, value, detail }: MetricCardProps) {
           <p className="text-muted-foreground text-xs font-medium tracking-normal uppercase">
             {label}
           </p>
-          <p className="mt-1 truncate text-xl font-semibold tracking-normal">{value}</p>
-          <p className="text-muted-foreground mt-1 truncate text-xs">{detail}</p>
+          <p className="mt-1 truncate text-xl font-semibold tracking-normal tabular-nums">
+            {value}
+          </p>
+          <p className="text-muted-foreground mt-1 truncate text-xs tabular-nums">{detail}</p>
         </div>
       </CardContent>
     </Card>

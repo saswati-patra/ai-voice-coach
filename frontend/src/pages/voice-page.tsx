@@ -34,7 +34,7 @@ export function VoicePage({ workspace }: VoicePageProps) {
       ) : null}
 
       <section className="grid gap-4 lg:grid-cols-[0.8fr_1.2fr]">
-        <Card>
+        <Card className="surface-card">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Volume2 className="text-primary size-4" />
@@ -46,6 +46,7 @@ export function VoicePage({ workspace }: VoicePageProps) {
             <Button
               onClick={voice.connectVoice}
               disabled={protectedDisabled || voice.isConnected || voice.isConnecting}
+              className="pressable"
             >
               <Plug className="size-4" />
               Connect
@@ -54,22 +55,33 @@ export function VoicePage({ workspace }: VoicePageProps) {
               variant="outline"
               onClick={() => voice.startMic().catch((error) => voice.appendVoiceLog(error.message))}
               disabled={!voice.isConnected || voice.isRecording}
+              className="pressable"
             >
               <Mic className="size-4" />
               Start Mic
             </Button>
-            <Button variant="outline" onClick={voice.stopMic} disabled={!voice.isRecording}>
+            <Button
+              variant="outline"
+              onClick={voice.stopMic}
+              disabled={!voice.isRecording}
+              className="pressable"
+            >
               <Square className="size-4" />
               Stop Mic
             </Button>
-            <Button variant="outline" onClick={voice.disconnectVoice} disabled={!voice.isConnected}>
+            <Button
+              variant="outline"
+              onClick={voice.disconnectVoice}
+              disabled={!voice.isConnected}
+              className="pressable"
+            >
               <LogOut className="size-4" />
               Disconnect
             </Button>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="surface-card">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Terminal className="text-primary size-4" />
@@ -80,7 +92,7 @@ export function VoicePage({ workspace }: VoicePageProps) {
             </p>
           </CardHeader>
           <CardContent>
-            <pre className="border-border min-h-80 overflow-auto rounded-lg border bg-slate-950 p-4 text-xs leading-6 text-slate-100">
+            <pre className="surface-panel min-h-80 overflow-auto rounded-lg border border-transparent bg-slate-950 p-4 text-xs leading-6 text-slate-100 tabular-nums">
               {voice.log.length ? voice.log.join("\n") : "Connect to start a voice session."}
             </pre>
           </CardContent>

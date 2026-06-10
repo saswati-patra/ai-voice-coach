@@ -36,6 +36,10 @@ gcloud/
 .vscode/
 *.swp
 
+# Local agent tooling
+.agents/
+skills-lock.json
+
 # Docker/runtime
 *.log
 tmp/

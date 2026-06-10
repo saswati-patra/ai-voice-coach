@@ -55,7 +55,7 @@ export function CloudPage({ workspace }: CloudPageProps) {
         </BaseTabsList>
 
         <BaseTabsPanel value="identity">
-          <Card>
+          <Card className="surface-card">
             <CardHeader>
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
@@ -78,7 +78,7 @@ export function CloudPage({ workspace }: CloudPageProps) {
                       {auth.authUser.uid}
                     </p>
                   </div>
-                  <Button variant="outline" onClick={auth.signOut}>
+                  <Button variant="outline" onClick={auth.signOut} className="pressable">
                     <LogOut className="size-4" />
                     Sign Out
                   </Button>
@@ -114,7 +114,7 @@ export function CloudPage({ workspace }: CloudPageProps) {
         </BaseTabsPanel>
 
         <BaseTabsPanel value="workflow">
-          <Card>
+          <Card className="surface-card">
             <CardHeader>
               <CardTitle>Manual Cloud Flow</CardTitle>
               <p className="text-muted-foreground text-sm">
@@ -130,7 +130,7 @@ export function CloudPage({ workspace }: CloudPageProps) {
                   "Upload, ingest, review, then test voice.",
                 ].map((item, index) => (
                   <li key={item} className="bg-muted/60 rounded-md p-4">
-                    <span className="bg-primary text-primary-foreground mb-3 flex size-8 items-center justify-center rounded-md text-sm font-semibold">
+                    <span className="bg-primary text-primary-foreground mb-3 flex size-8 items-center justify-center rounded-md text-sm font-semibold tabular-nums">
                       {index + 1}
                     </span>
                     <p className="text-muted-foreground text-sm leading-6">{item}</p>
@@ -153,7 +153,7 @@ type TargetCardProps = {
 
 function TargetCard({ icon: Icon, label, value }: TargetCardProps) {
   return (
-    <Card>
+    <Card className="surface-card">
       <CardContent className="flex items-start gap-4 p-5">
         <div className="bg-accent text-accent-foreground flex size-10 shrink-0 items-center justify-center rounded-lg">
           <Icon className="size-5" />

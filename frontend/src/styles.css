@@ -56,6 +56,15 @@
   --input: #c5d3d0;
   --ring: #2e7b73;
   --radius: 0.5rem;
+  --shadow-border:
+    0px 0px 0px 1px rgba(0, 0, 0, 0.06), 0px 1px 2px -1px rgba(0, 0, 0, 0.06),
+    0px 2px 4px 0px rgba(0, 0, 0, 0.04);
+  --shadow-border-hover:
+    0px 0px 0px 1px rgba(0, 0, 0, 0.08), 0px 1px 2px -1px rgba(0, 0, 0, 0.08),
+    0px 2px 4px 0px rgba(0, 0, 0, 0.06);
+  --shadow-panel:
+    0px 0px 0px 1px rgba(0, 0, 0, 0.06), 0px 14px 34px -18px rgba(23, 33, 32, 0.28),
+    0px 4px 10px -6px rgba(23, 33, 32, 0.14);
   background: var(--background);
   color: var(--foreground);
 }
@@ -67,6 +76,8 @@
 html {
   min-width: 320px;
   background: var(--background);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
@@ -88,6 +99,17 @@ button {
 
 button:disabled {
   cursor: not-allowed;
+}
+
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+
+p,
+li {
+  text-wrap: pretty;
 }
 
 h1,
@@ -160,4 +182,44 @@ a {
 .landing-button-final:hover {
   background: #115e59;
   color: #ffffff;
+}
+
+.surface-card {
+  border-color: transparent;
+  box-shadow: var(--shadow-border);
+  transition-property: box-shadow;
+  transition-duration: 150ms;
+  transition-timing-function: ease-out;
+}
+
+.surface-card:hover {
+  box-shadow: var(--shadow-border-hover);
+}
+
+.surface-panel {
+  box-shadow: var(--shadow-panel);
+}
+
+.pressable {
+  transition-property: scale, background-color, color, box-shadow;
+  transition-duration: 150ms;
+  transition-timing-function: ease-out;
+}
+
+.pressable:active {
+  scale: 0.96;
+}
+
+button.pressable:disabled {
+  scale: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pressable {
+    transition-duration: 0ms;
+  }
+
+  .pressable:active {
+    scale: 1;
+  }
 }

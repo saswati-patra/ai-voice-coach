@@ -87,7 +87,7 @@ function HeroSection({ primaryCta }: CtaProps) {
       />
       <div className="relative mx-auto flex w-full max-w-7xl flex-col px-4 pt-5 pb-4 sm:px-6 lg:min-h-[88svh] lg:px-8 lg:pb-8">
         <header className="flex items-center justify-between gap-4">
-          <Link to="/" className="flex min-w-0 items-center gap-3">
+          <Link to="/" className="pressable flex min-h-10 min-w-0 items-center gap-3">
             <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-teal-400 text-slate-950 shadow-lg shadow-teal-950/30">
               <Sparkles className="size-5" />
             </span>
@@ -96,13 +96,22 @@ function HeroSection({ primaryCta }: CtaProps) {
             </span>
           </Link>
           <nav className="hidden items-center gap-6 text-sm text-slate-300 md:flex">
-            <a href="#workflow" className="transition-colors hover:text-white">
+            <a
+              href="#workflow"
+              className="pressable inline-flex min-h-10 items-center hover:text-white"
+            >
               Workflow
             </a>
-            <a href="#product" className="transition-colors hover:text-white">
+            <a
+              href="#product"
+              className="pressable inline-flex min-h-10 items-center hover:text-white"
+            >
               Product
             </a>
-            <a href="#cloud-proof" className="transition-colors hover:text-white">
+            <a
+              href="#cloud-proof"
+              className="pressable inline-flex min-h-10 items-center hover:text-white"
+            >
               Cloud
             </a>
           </nav>
@@ -110,7 +119,7 @@ function HeroSection({ primaryCta }: CtaProps) {
             to={primaryCta.href}
             className={cn(
               buttonVariants({ variant: "outline", size: "sm" }),
-              "landing-button-hero-muted"
+              "landing-button-hero-muted pressable"
             )}
           >
             <PrimaryIcon className="size-4" />
@@ -136,7 +145,7 @@ function HeroSection({ primaryCta }: CtaProps) {
             <div className="mt-5 grid gap-3 sm:mt-7 sm:flex sm:flex-wrap">
               <Link
                 to={primaryCta.href}
-                className={cn(buttonVariants({ size: "lg" }), "landing-button-primary")}
+                className={cn(buttonVariants({ size: "lg" }), "landing-button-primary pressable")}
               >
                 <PrimaryIcon className="size-4" />
                 {primaryCta.label}
@@ -146,7 +155,7 @@ function HeroSection({ primaryCta }: CtaProps) {
                 href="#workflow"
                 className={cn(
                   buttonVariants({ variant: "outline", size: "lg" }),
-                  "landing-button-hero-outline"
+                  "landing-button-hero-outline pressable"
                 )}
               >
                 <ListChecks className="size-4" />
@@ -174,7 +183,7 @@ function HeroPracticePanel() {
       className="relative mx-auto w-full max-w-sm lg:translate-y-6"
       data-testid="landing-hero-panel"
     >
-      <div className="rounded-lg border border-white/15 bg-[#111827]/95 p-3 shadow-2xl shadow-black/35 sm:p-4">
+      <div className="surface-panel rounded-xl border border-white/15 bg-[#111827]/95 p-3 shadow-2xl shadow-black/35 sm:p-4">
         <div className="flex items-center justify-between border-b border-white/10 pb-3">
           <div className="flex items-center gap-2">
             <Volume2 className="size-4 text-teal-300" />
@@ -232,13 +241,15 @@ function WorkflowSection() {
           {workflowSteps.map((step, index) => (
             <article
               key={step.title}
-              className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm"
+              className="surface-card rounded-xl border border-transparent bg-white p-5"
             >
               <div className="flex items-center justify-between gap-3">
                 <span className="flex size-11 items-center justify-center rounded-lg bg-[#e5f7f3] text-teal-800">
                   <step.icon className="size-5" />
                 </span>
-                <span className="text-sm font-semibold text-slate-400">0{index + 1}</span>
+                <span className="text-sm font-semibold text-slate-400 tabular-nums">
+                  0{index + 1}
+                </span>
               </div>
               <h3 className="mt-5 text-lg font-semibold tracking-normal text-slate-950">
                 {step.title}
@@ -270,8 +281,8 @@ function ProductPreviewSection() {
           </div>
         </div>
 
-        <div className="rounded-lg border border-slate-200 bg-[#f4f8fb] p-3 shadow-xl shadow-slate-200/70">
-          <div className="rounded-md bg-white">
+        <div className="surface-panel rounded-xl border border-transparent bg-[#f4f8fb] p-3 shadow-xl shadow-slate-200/70">
+          <div className="rounded-lg bg-white">
             <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3">
               <div>
                 <p className="text-sm font-semibold text-slate-950">Learning dashboard</p>
@@ -282,7 +293,7 @@ function ProductPreviewSection() {
             <div className="grid gap-3 p-4 sm:grid-cols-2">
               <PreviewMetric icon={FileText} label="Materials" value="4" />
               <PreviewMetric icon={BookOpenCheck} label="Review items" value="18" />
-              <div className="rounded-lg border border-slate-200 bg-[#fcf7ed] p-4 sm:col-span-2">
+              <div className="surface-card rounded-lg border border-transparent bg-[#fcf7ed] p-4 sm:col-span-2">
                 <p className="text-sm font-semibold text-slate-950">Concept radar</p>
                 <div className="mt-3 flex flex-wrap gap-2">
                   {["retrieval practice", "memory consolidation", "spaced review"].map(
@@ -339,7 +350,7 @@ function CloudProofSection() {
             {cloudProof.map((item) => (
               <article
                 key={item.label}
-                className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm"
+                className="surface-card rounded-xl border border-transparent bg-white p-5"
               >
                 <p className="text-xs font-semibold tracking-normal text-teal-700 uppercase">
                   {item.label}
@@ -372,7 +383,7 @@ function FinalCtaSection({ primaryCta }: CtaProps) {
         <div className="mt-7 flex justify-center">
           <Link
             to={primaryCta.href}
-            className={cn(buttonVariants({ size: "lg" }), "landing-button-final")}
+            className={cn(buttonVariants({ size: "lg" }), "landing-button-final pressable")}
           >
             <PrimaryIcon className="size-4" />
             {primaryCta.label}
@@ -417,7 +428,7 @@ type IconType = typeof FileText;
 
 function ProofPill({ icon: Icon, label }: { icon: IconType; label: string }) {
   return (
-    <div className="flex items-center gap-3 rounded-lg border border-slate-200 bg-[#f7faf9] p-3">
+    <div className="surface-card flex items-center gap-3 rounded-xl border border-transparent bg-[#f7faf9] p-3">
       <span className="flex size-9 items-center justify-center rounded-md bg-white text-teal-700 shadow-sm">
         <Icon className="size-4" />
       </span>
@@ -436,10 +447,10 @@ function PreviewMetric({
   value: string;
 }) {
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-4">
+    <div className="surface-card rounded-xl border border-transparent bg-white p-4">
       <div className="flex items-center justify-between">
         <Icon className="size-4 text-teal-700" />
-        <span className="text-xl font-semibold text-slate-950">{value}</span>
+        <span className="text-xl font-semibold text-slate-950 tabular-nums">{value}</span>
       </div>
       <p className="mt-3 text-sm text-slate-600">{label}</p>
     </div>

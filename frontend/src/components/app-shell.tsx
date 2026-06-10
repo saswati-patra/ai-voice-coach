@@ -38,7 +38,7 @@ export function AppShell({ children, workspace }: AppShellProps) {
       <header className="border-border bg-background/95 sticky top-0 z-40 border-b backdrop-blur">
         <div className="mx-auto flex w-full max-w-7xl flex-col gap-3 px-4 py-3 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between gap-3">
-            <NavLink to="/app" className="flex min-w-0 items-center gap-3">
+            <NavLink to="/app" className="pressable flex min-h-10 min-w-0 items-center gap-3">
               <span className="bg-primary text-primary-foreground flex size-10 shrink-0 items-center justify-center rounded-lg shadow-sm">
                 <Sparkles className="size-5" />
               </span>
@@ -67,6 +67,7 @@ export function AppShell({ children, workspace }: AppShellProps) {
                     disabled={loading}
                     size="icon"
                     variant="outline"
+                    className="pressable"
                   >
                     <RefreshCw className={cn("size-4", loading && "animate-spin")} />
                   </Button>
@@ -84,7 +85,7 @@ export function AppShell({ children, workspace }: AppShellProps) {
                   end={item.to === "/app"}
                   className={({ isActive }) =>
                     cn(
-                      "text-muted-foreground hover:bg-accent hover:text-accent-foreground inline-flex h-10 shrink-0 items-center gap-2 rounded-md px-3 text-sm font-medium transition-colors",
+                      "pressable text-muted-foreground hover:bg-accent hover:text-accent-foreground inline-flex h-10 shrink-0 items-center gap-2 rounded-md px-3 text-sm font-medium",
                       isActive &&
                         "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground shadow-sm"
                     )

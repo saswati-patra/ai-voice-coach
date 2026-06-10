@@ -25,7 +25,7 @@ export function AuthRequired({ children, workspace }: AuthRequiredProps) {
 
   if (!auth.authReady) {
     return (
-      <Card>
+      <Card className="surface-card">
         <CardContent className="flex min-h-64 flex-col items-center justify-center gap-3 p-8 text-center">
           <div className="bg-accent text-accent-foreground flex size-11 items-center justify-center rounded-lg">
             <ShieldCheck className="size-5" />

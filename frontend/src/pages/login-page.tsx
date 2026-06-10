@@ -40,14 +40,14 @@ export function LoginPage({ workspace }: LoginPageProps) {
           </p>
         </div>
         <div className="grid gap-3 sm:grid-cols-2">
-          <div className="bg-muted/70 rounded-lg p-4">
+          <div className="surface-card bg-muted/70 rounded-xl border border-transparent p-4">
             <Cloud className="text-primary mb-3 size-5" />
             <p className="text-sm font-semibold">Cloud identity</p>
             <p className="text-muted-foreground mt-1 text-sm leading-6">
               One account for local and hosted practice.
             </p>
           </div>
-          <div className="bg-muted/70 rounded-lg p-4">
+          <div className="surface-card bg-muted/70 rounded-xl border border-transparent p-4">
             <ShieldCheck className="text-primary mb-3 size-5" />
             <p className="text-sm font-semibold">Session continuity</p>
             <p className="text-muted-foreground mt-1 text-sm leading-6">
@@ -57,7 +57,7 @@ export function LoginPage({ workspace }: LoginPageProps) {
         </div>
       </section>
 
-      <Card>
+      <Card className="surface-card">
         <CardHeader>
           <CardTitle>{providerCopy.title}</CardTitle>
           <p className="text-muted-foreground text-sm">{providerCopy.description}</p>
@@ -74,7 +74,7 @@ export function LoginPage({ workspace }: LoginPageProps) {
           ) : null}
 
           <div className="grid gap-3">
-            <Button onClick={auth.signIn} disabled={!auth.canSignIn} className="w-full">
+            <Button onClick={auth.signIn} disabled={!auth.canSignIn} className="pressable w-full">
               <LogIn className="size-4" />
               {providerCopy.actionLabel}
             </Button>

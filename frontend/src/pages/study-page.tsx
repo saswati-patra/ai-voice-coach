@@ -30,7 +30,7 @@ export function StudyPage({ workspace }: StudyPageProps) {
         </Alert>
       ) : null}
 
-      <Card>
+      <Card className="surface-card">
         <CardHeader>
           <CardTitle>Upload Material</CardTitle>
           <p className="text-muted-foreground text-sm">
@@ -54,7 +54,7 @@ export function StudyPage({ workspace }: StudyPageProps) {
             <Button
               onClick={study.uploadSelectedFile}
               disabled={protectedDisabled || !study.selectedFile}
-              className="lg:min-w-32"
+              className="pressable lg:min-w-32"
             >
               {loading ? (
                 <Loader2 className="size-4 animate-spin" />
@@ -73,12 +73,12 @@ export function StudyPage({ workspace }: StudyPageProps) {
       {study.materials.length ? (
         <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {study.materials.map((material) => (
-            <Card key={material.id} className="flex flex-col">
+            <Card key={material.id} className="surface-card flex flex-col">
               <CardHeader>
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <CardTitle className="truncate">{material.title}</CardTitle>
-                    <p className="text-muted-foreground mt-1 text-xs">
+                    <p className="text-muted-foreground mt-1 text-xs tabular-nums">
                       {material.original_filename || material.source_type} /{" "}
                       {formatBytes(material.size_bytes)}
                     </p>
@@ -108,7 +108,7 @@ export function StudyPage({ workspace }: StudyPageProps) {
                 ) : null}
 
                 <Button
-                  className="mt-auto"
+                  className="pressable mt-auto"
                   variant="outline"
                   onClick={() => study.ingestMaterial(material.id)}
                   disabled={protectedDisabled || !material.storage_path}

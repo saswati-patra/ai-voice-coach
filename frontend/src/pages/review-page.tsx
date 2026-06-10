@@ -56,7 +56,7 @@ export function ReviewPage({ workspace }: ReviewPageProps) {
           {(Object.keys(statusCopy) as Array<keyof typeof statusCopy>).map((status) => {
             const StatusIcon = statusCopy[status].icon;
             return (
-              <Card key={status}>
+              <Card key={status} className="surface-card">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <StatusIcon className="text-primary size-4" />
